@@ -88,7 +88,25 @@ Staff sign in at `/login`. Demo accounts use the password `password`. An inactiv
 
 `office_head` and `office_plan_expert` see only their own organization. `zone_head` and `zone_plan_expert` see the zone and every woreda and town. Other staff based at the zone see that same family. The dashboard cards count prosecutors, public servants, their sum, and the woreda/city submission matrix for the current budget year. The laws total is the whole collection, because laws are not tied to one office.
 
-`zone_head` and `office_head` approve or reject annual plans, weekly reports, and strategic-focus rows. A form can only save a draft or a submission. Staff history stores `salary_history`, `performance_evaluations`, and `promotions` as rows that can be added and removed. Community posts and public case tracking can be published or hidden from the public portal.
+`zone_head` and `office_head` approve or reject annual plans, weekly reports, strategic-focus rows, and the prosecutor weekly matrices. A form can only save a draft or a submission. Staff history stores `salary_history`, `performance_evaluations`, and `promotions` as rows that can be added and removed. Community posts and public case tracking can be published or hidden from the public portal.
+
+## Prosecutor weekly matrices and export
+
+The three prosecutor matrices live at `/admin/prosecutor-weekly`. Each section stores one row in `prosecutor_weekly_report_items.metrics`. Totals and the three rates (የማጥራት ምጣኔ, የመርታት ምጣኔ, የማስቀጣት ምጣኔ) are calculated in the browser as the numbers are typed, and the server stores the same result.
+
+| Type | Sections |
+| --- | --- |
+| `civil` | መንግስት ከሳሽ, በፍ/ቤት ያሉ, ይግባኝ, አፈፃፀም, ውል ምዝገባ, የህግ ምክር, አቤቱታ |
+| `criminal` | ም/መዝገብ ውሳኔ, በፍ/ቤት ያሉ, ይግባኝ, ማረፊያ ቤት 3x/ሳምንት እና ማረሚያ ቤት 1x/ወር, አቤቱታና ህግ ምክር |
+| `document_registration` | የሰነዶች ህጋዊነት, ሲቪክ ማህበራት, ጠበቆችና ህግ ጉዳይ ፀሐፊዎች |
+
+PDF export uses mPDF with `storage/fonts/NotoSansEthiopic-Regular.ttf`, so Ethiopic text stays readable. Excel export uses Laravel Excel. Both are available for staff profiles, registers 001–014, and the prosecutor matrices.
+
+| Download | Path |
+| --- | --- |
+| One prosecutor matrix | `/admin/prosecutor-weekly/{report}/pdf` and `/excel` |
+| The filtered prosecutor list | `/admin/prosecutor-weekly/export/pdf` and `/excel` |
+| Staff profiles or a register | `/admin/exports/{key}/pdf` and `/excel` |
 
 ## Public portal
 

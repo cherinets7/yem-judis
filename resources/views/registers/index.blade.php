@@ -16,7 +16,13 @@
             @endif
             <h2 class="h4 mb-0">{{ $definition['title'] }}</h2>
         </div>
-        <a class="btn btn-success" href="{{ route('admin.'.$definition['uri'].'.create') }}">አዲስ መዝግብ</a>
+        <div class="d-flex flex-wrap gap-2">
+            @if (! empty($definition['code']) || $definition['key'] === 'staff-profiles')
+                <a class="btn btn-outline-success" href="{{ route('admin.exports.pdf', array_merge(['key' => $definition['key']], request()->only(['q', 'court_level']))) }}">PDF ወርድ</a>
+                <a class="btn btn-outline-success" href="{{ route('admin.exports.excel', array_merge(['key' => $definition['key']], request()->only(['q', 'court_level']))) }}">ኤክሴል ወርድ</a>
+            @endif
+            <a class="btn btn-success" href="{{ route('admin.'.$definition['uri'].'.create') }}">አዲስ መዝግብ</a>
+        </div>
     </div>
 
     <form class="page-card p-3 mb-3" method="get" action="{{ route('admin.'.$definition['uri'].'.index') }}">

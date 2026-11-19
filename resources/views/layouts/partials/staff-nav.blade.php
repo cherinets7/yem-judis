@@ -21,6 +21,11 @@
                 @php $definition = \App\Support\RegisterCatalog::get($key); @endphp
                 <a class="staff-link is-child @if(request()->routeIs('admin.'.$definition['uri'].'.*')) is-active @endif" href="{{ route('admin.'.$definition['uri'].'.index') }}" @if(request()->routeIs('admin.'.$definition['uri'].'.*')) aria-current="page" @endif>{{ $definition['nav'] }}</a>
             @endforeach
+            @if (in_array('weekly-reports', $section['keys'], true))
+                @foreach (\App\Support\ProsecutorWeeklyMatrix::types() as $type => $label)
+                    <a class="staff-link is-child @if(request()->routeIs('admin.prosecutor-weekly.*') && request('type') === $type) is-active @endif" href="{{ route('admin.prosecutor-weekly.index', ['type' => $type]) }}" @if(request()->routeIs('admin.prosecutor-weekly.*') && request('type') === $type) aria-current="page" @endif>{{ \App\Enums\ProsecutorReportType::from($type)->label() }} ሳምንታዊ</a>
+                @endforeach
+            @endif
         @endif
     @endforeach
 
