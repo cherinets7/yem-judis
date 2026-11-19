@@ -74,3 +74,31 @@ Planning and community tables sit beside the paper registers:
 `reviewed_by`, `created_by`, `uploaded_by`, `updated_by`, `filled_by_expert`, `approved_by_expert`, and `served_by_expert` point at `users`. `assigned_prosecutor` stays a name, matching the paper form.
 
 Plans, weekly reports, strategic-focus rows, and prosecutor weekly reports share the review status `draft`, `submitted`, `approved`, `rejected`. Gender columns use `male` and `female`. JSON columns (`salary_history`, `performance_evaluations`, `promotions`, `metrics`) cast to arrays. `is_active`, `is_published`, `is_renewed_this_year`, and `closed_indefinitely` cast to booleans.
+
+## Staff workspace
+
+Staff sign in at `/login`. Demo accounts use the password `password`. An inactive account is refused. After sign-in the sidebar shows only the modules that role may use.
+
+| Page | Path | Who |
+| --- | --- | --- |
+| Dashboard | `/dashboard` | Every active staff role |
+| Zone center | `/zone-center` | Zone roles |
+| Woredas and towns | `/woredas` | Every active staff role, limited to the offices they may see |
+| Registers 001–014, plans, staff, laws, community, and public case tracking | `/admin/...` | The role middleware on that module |
+
+`office_head` and `office_plan_expert` see only their own organization. `zone_head` and `zone_plan_expert` see the zone and every woreda and town. Other staff based at the zone see that same family. The dashboard cards count prosecutors, public servants, their sum, and the woreda/city submission matrix for the current budget year. The laws total is the whole collection, because laws are not tied to one office.
+
+`zone_head` and `office_head` approve or reject annual plans, weekly reports, and strategic-focus rows. A form can only save a draft or a submission. Staff history stores `salary_history`, `performance_evaluations`, and `promotions` as rows that can be added and removed. Community posts and public case tracking can be published or hidden from the public portal.
+
+## Public portal
+
+The public pages are Amharic, using Bootstrap 5.3 and Noto Sans Ethiopic. Dates use `Africa/Addis_Ababa` through `App\Helpers\EthiopianDateHelper`. The budget year runs from Hamle 1 to Sene 30.
+
+| Page | Path |
+| --- | --- |
+| Home, with latest news, announcements, and a laws summary | `/` |
+| Case tracking | `/cases-tracking` |
+| Laws and download | `/laws`, `/laws/{law}/download` |
+| Community, including public feedback | `/community`, `POST /community/feedback` |
+
+Only published case trackings and community posts are shown. Staff routes can use the `role` middleware alias, which allows an active `super_admin` or an active user whose role is listed.

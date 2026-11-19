@@ -38,6 +38,13 @@ class User extends Authenticatable
         'is_active' => 'boolean',
     ];
 
+    public function displayName(): string
+    {
+        $name = preg_replace('/\s*\([^)]*\)\s*$/u', '', $this->name);
+
+        return trim(is_string($name) ? $name : $this->name);
+    }
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);

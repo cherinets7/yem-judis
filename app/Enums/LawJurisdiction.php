@@ -9,4 +9,13 @@ enum LawJurisdiction: string
     case Federal = 'federal';
     case Regional = 'regional';
     case Zonal = 'zonal';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Federal => 'ፌዴራል',
+            self::Regional => 'ክልል',
+            self::Zonal => 'ዞናዊ',
+        };
+    }
 }

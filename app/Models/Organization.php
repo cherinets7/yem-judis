@@ -19,6 +19,13 @@ class Organization extends Model
         'type' => OrganizationType::class,
     ];
 
+    public function amharicName(): string
+    {
+        $name = preg_replace('/\s*\([^)]*\)\s*$/u', '', $this->name);
+
+        return trim(is_string($name) ? $name : $this->name);
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
