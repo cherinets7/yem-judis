@@ -65,9 +65,16 @@ class StaffWorkspaceTest extends TestCase
             ->assertSee('የሁለቱ ድምር')
             ->assertSee('ጠቅላላ ህጎች')
             ->assertSee('የሳጃ')
-            ->assertSee('አልቀረበም')
+            ->assertSee('ጸድቋል')
+            ->assertSee('ዐቃቤ ህግ ሳምንታዊ')
+            ->assertDontSee('አልቀረበም')
             ->assertDontSee('የፎፋ')
             ->assertDontSee('ዞን ማዕከል');
+
+        $this->actingAs($office)->get(route('admin.staff-profiles.index'))
+            ->assertOk()
+            ->assertSee('ሙሉጌታ ተፈራ')
+            ->assertDontSee('ታሪኩ ሻሎ');
 
         $this->actingAs($office)->get(route('woredas'))
             ->assertOk()
@@ -80,7 +87,8 @@ class StaffWorkspaceTest extends TestCase
             ->assertOk()
             ->assertSee('የፎፋ')
             ->assertSee('የሳጃ')
-            ->assertSee('የየም ዞን');
+            ->assertSee('የየም ዞን')
+            ->assertSee('አልቀረበም');
 
         $this->actingAs($zone)->get(route('zone-center'))
             ->assertOk()
@@ -179,7 +187,7 @@ class StaffWorkspaceTest extends TestCase
             ->post(route('admin.weekly-reports.store'), $payload)
             ->assertSessionHasErrors('week_number');
 
-        $report = WeeklyReport::query()->firstOrFail();
+        $report = WeeklyReport::query()->where('week_number', 12)->where('user_id', $planner->id)->firstOrFail();
         $this->actingAs($planner)->put(route('admin.weekly-reports.update', $report), [
             ...$payload,
             'status' => 'submitted',
@@ -260,9 +268,11 @@ class StaffWorkspaceTest extends TestCase
         $this->assertCount(1, $profile->promotions);
         $this->assertSame('ዐቃቤ ህግ', $profile->promotions[0]['to_title']);
 
+        $prosecutors = StaffProfile::query()->where('staff_category', 'prosecutor')->count();
+
         $this->actingAs($hr)->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('>1<', false);
+            ->assertSee('>'.$prosecutors.'<', false);
     }
 
     public function test_legal_expert_hides_a_public_post_and_uploads_a_law(): void

@@ -68,7 +68,10 @@ class ProsecutorWeeklyExportTest extends TestCase
         $this->actingAs($planner)->post(route('admin.prosecutor-weekly.store'), $payload)
             ->assertRedirect(route('admin.prosecutor-weekly.index', ['type' => 'civil']));
 
-        $report = ProsecutorWeeklyReport::query()->firstOrFail();
+        $report = ProsecutorWeeklyReport::query()
+            ->where('user_id', $planner->id)
+            ->where('week_number', 12)
+            ->firstOrFail();
         $this->assertSame(21, $report->items()->count());
         $row = $report->items->first(fn ($item) => $item->section_code === 'civil_plaintiff' && ($item->metrics['row'] ?? null) === 'woreda');
         $this->assertSame(20, $row->metrics['total']);

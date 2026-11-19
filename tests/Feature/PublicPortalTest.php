@@ -114,6 +114,11 @@ class PublicPortalTest extends TestCase
         $this->assertSame(2, CommunityPost::query()->where('type', 'feedback')->count());
     }
 
+    public function test_missing_pages_use_the_amharic_message(): void
+    {
+        $this->get('/የለም')->assertNotFound()->assertSee('ገጹ አልተገኘም');
+    }
+
     public function test_role_middleware_allows_super_admin_and_blocks_inactive_users(): void
     {
         Route::middleware('role:legal_expert')->get('/testing/role-gate', fn () => 'allowed');

@@ -36,6 +36,7 @@ php artisan test
 - City office: Saja Town, the zone administrative center
 - Woreda offices: Fofa, Deri Saja Zuria, and Toba
 - Work units on the zone department and on every woreda and town office
+- Sample staff profiles, the current budget year's plans and weekly reports, one row for each register 001–014, and prosecutor weekly matrices for Saja and Fofa. Toba has staff but no report for the current year, so the dashboard still shows an office that has not submitted.
 
 Demo accounts all use the password `password`:
 
@@ -86,7 +87,7 @@ Staff sign in at `/login`. Demo accounts use the password `password`. An inactiv
 | Woredas and towns | `/woredas` | Every active staff role, limited to the offices they may see |
 | Registers 001–014, plans, staff, laws, community, and public case tracking | `/admin/...` | The role middleware on that module |
 
-`office_head` and `office_plan_expert` see only their own organization. `zone_head` and `zone_plan_expert` see the zone and every woreda and town. Other staff based at the zone see that same family. The dashboard cards count prosecutors, public servants, their sum, and the woreda/city submission matrix for the current budget year. The laws total is the whole collection, because laws are not tied to one office.
+`office_head` and `office_plan_expert` see only their own organization. `zone_head` and `zone_plan_expert` see the zone and every woreda and town. Other staff based at the zone see that same family. The dashboard cards count prosecutors, public servants, their sum, and the woreda/city submission matrix for the current budget year, including the prosecutor weekly matrices. The laws total is the whole collection, because laws are not tied to one office.
 
 `zone_head` and `office_head` approve or reject annual plans, weekly reports, strategic-focus rows, and the prosecutor weekly matrices. A form can only save a draft or a submission. Staff history stores `salary_history`, `performance_evaluations`, and `promotions` as rows that can be added and removed. Community posts and public case tracking can be published or hidden from the public portal.
 

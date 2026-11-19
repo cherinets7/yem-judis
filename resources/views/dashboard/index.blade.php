@@ -51,6 +51,7 @@
                             <th>ዓመታዊ</th>
                             <th>ሳምንታዊ</th>
                             <th>ስትራቴጂክ</th>
+                            <th>ዐቃቤ ህግ ሳምንታዊ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,6 +67,12 @@
                                     @endif
                                 </td>
                                 <td>{{ $row['strategic'] }}</td>
+                                <td>
+                                    {{ $row['prosecutor'] }}
+                                    @if ($row['prosecutor_count'] > 0)
+                                        <span class="meta">· {{ $row['prosecutor_count'] }}</span>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

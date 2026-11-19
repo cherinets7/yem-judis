@@ -9,6 +9,7 @@ use App\Helpers\EthiopianDateHelper;
 use App\Models\AnnualPlan;
 use App\Models\Law;
 use App\Models\Organization;
+use App\Models\ProsecutorWeeklyReport;
 use App\Models\StaffProfile;
 use App\Models\StrategicFocusData;
 use App\Models\WeeklyReport;
@@ -52,9 +53,15 @@ class DashboardController extends Controller
             ->where('budget_year_ec', $budgetYear)
             ->get()
             ->groupBy(fn (StrategicFocusData $row) => (int) $row->organization_id);
+        $prosecutorWeeks = ProsecutorWeeklyReport::query()
+            ->whereIn('organization_id', $ids)
+            ->where('budget_year_ec', $budgetYear)
+            ->get()
+            ->groupBy(fn (ProsecutorWeeklyReport $report) => (int) $report->organization_id);
 
-        $matrix = $organizations->map(function (Organization $organization) use ($plans, $weeks, $focus) {
+        $matrix = $organizations->map(function (Organization $organization) use ($plans, $weeks, $focus, $prosecutorWeeks) {
             $weekly = $weeks->get($organization->id);
+            $prosecutor = $prosecutorWeeks->get($organization->id);
 
             return [
                 'name' => $organization->amharicName(),
@@ -63,6 +70,8 @@ class DashboardController extends Controller
                 'weekly' => $this->latestStatus($weekly),
                 'weekly_count' => $weekly?->count() ?? 0,
                 'strategic' => $this->latestStatus($focus->get($organization->id)),
+                'prosecutor' => $this->latestStatus($prosecutor),
+                'prosecutor_count' => $prosecutor?->count() ?? 0,
             ];
         });
 
