@@ -29,7 +29,11 @@
                 var(--paper);
             color: var(--ink);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
+        main { flex: 1 0 auto; }
 
         a { color: var(--leaf); }
         a:hover { color: var(--green); }
@@ -240,9 +244,18 @@
 
         .post-body { white-space: pre-wrap; }
 
-        .portal-footer {
+        .site-footer {
             border-top: 1px solid var(--line);
             color: var(--muted);
+            background: rgba(255, 253, 248, .72);
+            margin-top: auto;
+        }
+
+        .site-footer-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem 2rem;
             padding: 1.4rem 0 2rem;
         }
 
@@ -320,13 +333,9 @@
         </div>
     </main>
 
-    <footer class="portal-footer">
-        <div class="container d-flex flex-wrap justify-content-between gap-3">
-            <div>
-                <strong class="text-dark">የየም ዞን ፍትህ መምሪያ</strong>
-                <div>ሳጃ፣ የየም ዞን፣ ማዕከላዊ ኢትዮጵያ</div>
-            </div>
-            <div>የህዝብ መረጃ በር ብቻ። የጉዳይ ዝርዝር የሚታየው ከታተመ በኋላ ነው።</div>
+    <footer class="site-footer">
+        <div class="container">
+            @include('layouts.partials.site-footer')
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

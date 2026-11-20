@@ -84,7 +84,7 @@ class RegisterCatalog
     }
 
     /**
-     * @return list<array{heading: string, roles: string, keys: list<string>}>
+     * @return list<array{heading: string, roles: string, group: string, keys: list<string>}>
      */
     public static function sections(): array
     {
@@ -92,36 +92,43 @@ class RegisterCatalog
             [
                 'heading' => 'ዓመታዊ/ሳምንታዊ/ስትራቴጂክ ሪፖርቶች',
                 'roles' => Roles::REPORTS,
+                'group' => 'reports',
                 'keys' => ['annual-plans', 'weekly-reports', 'strategic-focus'],
             ],
             [
                 'heading' => 'የሰው ሀብት',
                 'roles' => Roles::HR,
+                'group' => 'hr',
                 'keys' => ['staff-profiles'],
             ],
             [
                 'heading' => 'ጉዳዮች 001–007',
                 'roles' => Roles::LEGAL,
+                'group' => 'legal',
                 'keys' => ['criminal-cases', 'criminal-appeals', 'civil-cases', 'civil-appeals', 'civil-executions'],
             ],
             [
                 'heading' => 'ውክልና/ውሎች/ጥብቅና 008–014',
                 'roles' => Roles::LEGAL,
+                'group' => 'legal',
                 'keys' => ['poa-grants', 'poa-revocations', 'contracts', 'legal-studies', 'civic-associations', 'attorneys', 'legal-secretaries'],
             ],
             [
                 'heading' => 'ህጎች',
                 'roles' => Roles::LAWS,
+                'group' => 'laws',
                 'keys' => ['laws'],
             ],
             [
                 'heading' => 'ሌሎች/አስተያየቶች',
                 'roles' => Roles::COMMUNITY,
+                'group' => 'community',
                 'keys' => ['community-posts'],
             ],
             [
                 'heading' => 'የፐብሊክ ጉዳይ መከታተያ',
                 'roles' => Roles::TRACKING,
+                'group' => 'tracking',
                 'keys' => ['case-tracking'],
             ],
         ];

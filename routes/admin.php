@@ -4,12 +4,11 @@ use App\Http\Controllers\ExcelExportController;
 use App\Http\Controllers\PdfExportController;
 use App\Http\Controllers\ProsecutorWeeklyReportController;
 use App\Support\RegisterCatalog;
-use App\Support\Roles;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     foreach (RegisterCatalog::sections() as $section) {
-        Route::middleware('role:'.$section['roles'])->group(function () use ($section) {
+        Route::middleware('role:'.$section['group'])->group(function () use ($section) {
             foreach ($section['keys'] as $key) {
                 $definition = RegisterCatalog::get($key);
                 $controller = $definition['controller'];
@@ -30,7 +29,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
     }
 
-    Route::middleware('role:'.Roles::REPORTS)->group(function () {
+    Route::middleware('role:reports')->group(function () {
         Route::get('prosecutor-weekly/export/pdf', [PdfExportController::class, 'prosecutorWeeklyCollection'])->name('prosecutor-weekly.bundle.pdf');
         Route::get('prosecutor-weekly/export/excel', [ExcelExportController::class, 'prosecutorWeeklyCollection'])->name('prosecutor-weekly.bundle.excel');
 
@@ -39,10 +38,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->except(['show']);
 
         Route::post('prosecutor-weekly/{report}/approve', [ProsecutorWeeklyReportController::class, 'approve'])
-            ->middleware('role:'.Roles::REVIEWERS)
+            ->middleware('role:reviewers')
             ->name('prosecutor-weekly.approve');
         Route::post('prosecutor-weekly/{report}/reject', [ProsecutorWeeklyReportController::class, 'reject'])
-            ->middleware('role:'.Roles::REVIEWERS)
+            ->middleware('role:reviewers')
             ->name('prosecutor-weekly.reject');
         Route::get('prosecutor-weekly/{report}/pdf', [PdfExportController::class, 'prosecutorWeekly'])->name('prosecutor-weekly.pdf');
         Route::get('prosecutor-weekly/{report}/excel', [ExcelExportController::class, 'prosecutorWeekly'])->name('prosecutor-weekly.excel');

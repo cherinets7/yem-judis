@@ -29,5 +29,10 @@
         @endif
     @endforeach
 
+    <div class="staff-heading">ሥርዓት</div>
+    <a class="staff-link @if(request()->routeIs('settings.*')) is-active @endif" href="{{ route('settings.edit') }}" @if(request()->routeIs('settings.*')) aria-current="page" @endif>ቅንብሮች</a>
+    @if (\App\Support\Roles::allows($user, 'permissions'))
+        <a class="staff-link @if(request()->routeIs('permissions.*')) is-active @endif" href="{{ route('permissions.edit') }}" @if(request()->routeIs('permissions.*')) aria-current="page" @endif>ፈቃዶች</a>
+    @endif
     <a class="staff-link" href="{{ route('home') }}">የህዝብ በር</a>
 </nav>

@@ -132,6 +132,19 @@
         }
         .alert { border: 0; border-radius: .8rem; }
         .offcanvas.staff-sidebar { width: min(20rem, 88vw); }
+
+        .site-footer {
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            background: var(--card);
+        }
+
+        .site-footer-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem 2rem;
+        }
     </style>
     @stack('head')
 </head>
@@ -167,12 +180,18 @@
                 </div>
             </header>
 
-            <main id="content" class="px-3 px-lg-4 py-4">
+            <main id="content" class="px-3 px-lg-4 py-4 flex-grow-1">
                 @if (session('status'))
                     <div class="alert alert-success" role="status">{{ session('status') }}</div>
                 @endif
                 @yield('content')
             </main>
+
+            <footer class="site-footer mt-auto">
+                <div class="px-3 px-lg-4 py-3">
+                    @include('layouts.partials.site-footer')
+                </div>
+            </footer>
         </div>
     </div>
 

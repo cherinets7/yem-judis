@@ -45,7 +45,39 @@ class Roles
             return true;
         }
 
-        return in_array($role->value, self::list($roles), true);
+        return in_array($role->value, self::permitted($roles), true);
+    }
+
+    /**
+     * Roles that may use a named permission group, or an explicit comma list.
+     *
+     * @return list<string>
+     */
+    public static function permitted(string $roles): array
+    {
+        $group = self::groupKey($roles);
+
+        if ($group !== null) {
+            return PermissionCatalog::roles($group);
+        }
+
+        return self::list($roles);
+    }
+
+    public static function groupKey(string $roles): ?string
+    {
+        return match ($roles) {
+            self::ALL => 'all',
+            self::ZONE => 'zone',
+            self::REPORTS => 'reports',
+            self::REVIEWERS => 'reviewers',
+            self::HR => 'hr',
+            self::LEGAL => 'legal',
+            self::LAWS => 'laws',
+            self::COMMUNITY => 'community',
+            self::TRACKING => 'tracking',
+            default => PermissionCatalog::isGroup($roles) ? $roles : null,
+        };
     }
 
     public static function of(?User $user): ?UserRole
