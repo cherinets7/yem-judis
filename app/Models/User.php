@@ -109,4 +109,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(StaffProfile::class, 'filled_by_expert');
     }
+
+    public function performanceReports(): HasMany
+    {
+        return $this->hasMany(PerformanceReport::class);
+    }
 }

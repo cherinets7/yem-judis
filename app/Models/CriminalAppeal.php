@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use App\Enums\Gender;
+use App\Models\Concerns\HasAssignedExpert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Criminal appeal register. Code 003. */
 class CriminalAppeal extends Model
 {
+    use HasAssignedExpert;
+
     protected $fillable = [
         'organization_id',
+        'expert_id',
         'prosecutor_appeal_number',
         'lower_court_file_number',
         'appellant_name',

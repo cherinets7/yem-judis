@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use App\Enums\AppellantType;
+use App\Models\Concerns\HasAssignedExpert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Civil appeal register. Code 006. */
 class CivilAppeal extends Model
 {
+    use HasAssignedExpert;
+
     protected $fillable = [
         'organization_id',
+        'expert_id',
         'appellant_type',
         'appellant_address',
         'respondent_address',

@@ -13,10 +13,12 @@ class Organization extends Model
         'name',
         'type',
         'parent_id',
+        'is_active',
     ];
 
     protected $casts = [
         'type' => OrganizationType::class,
+        'is_active' => 'boolean',
     ];
 
     public function amharicName(): string

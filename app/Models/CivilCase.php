@@ -4,14 +4,18 @@ namespace App\Models;
 
 use App\Enums\CourtLevel;
 use App\Enums\Gender;
+use App\Models\Concerns\HasAssignedExpert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Civil case register. Code 004 high court, code 005 woreda court. */
 class CivilCase extends Model
 {
+    use HasAssignedExpert;
+
     protected $fillable = [
         'organization_id',
+        'expert_id',
         'court_level',
         'plaintiff_name',
         'defendant_name',

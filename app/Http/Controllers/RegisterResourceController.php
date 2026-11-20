@@ -139,6 +139,12 @@ abstract class RegisterResourceController extends Controller
             $query->with('workUnit');
         }
 
+        foreach (['expert', 'filledByExpert', 'approvedByExpert', 'servedByExpert'] as $relation) {
+            if (method_exists($instance, $relation)) {
+                $query->with($relation);
+            }
+        }
+
         if (! $definition['scoped']) {
             return $query;
         }
@@ -568,12 +574,36 @@ abstract class RegisterResourceController extends Controller
     protected function formData(?Model $record = null): array
     {
         $ids = OrganizationScope::ids();
+        $expertIds = User::query()
+            ->whereIn('organization_id', $ids)
+            ->where('is_active', true)
+            ->pluck('id');
+
+        if ($record !== null) {
+            foreach (['expert_id', 'filled_by_expert', 'approved_by_expert', 'served_by_expert'] as $column) {
+                $selected = $record->getAttribute($column);
+
+                if ($selected) {
+                    $expertIds->push($selected);
+                }
+            }
+        }
 
         return $this->page([
             'record' => $record,
-            'organizations' => Organization::query()->whereIn('id', $ids)->orderBy('name')->get(),
+            'organizations' => Organization::query()
+                ->whereIn('id', $ids)
+                ->where(function ($query) use ($record): void {
+                    $query->where('is_active', true);
+
+                    if ($record?->getAttribute('organization_id')) {
+                        $query->orWhere('id', $record->getAttribute('organization_id'));
+                    }
+                })
+                ->orderBy('name')
+                ->get(),
             'workUnits' => WorkUnit::query()->whereIn('organization_id', $ids)->orderBy('name')->get(),
-            'experts' => User::query()->whereIn('organization_id', $ids)->where('is_active', true)->orderBy('name')->get(),
+            'experts' => User::query()->whereIn('id', $expertIds->unique()->all())->orderBy('name')->get(),
             'budgetYear' => EthiopianDateHelper::currentBudgetYear(),
         ]);
     }

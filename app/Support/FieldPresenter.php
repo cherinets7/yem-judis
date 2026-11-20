@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\User;
 use BackedEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -20,6 +21,18 @@ class FieldPresenter
             $name = $record->workUnit?->name;
 
             return is_string($name) && $name !== '' ? self::plain($name) : '—';
+        }
+
+        $relation = match (true) {
+            $column === 'expert_id' => 'expert',
+            str_ends_with($column, '_expert') => Str::camel($column),
+            default => null,
+        };
+
+        if ($relation !== null && method_exists($record, $relation)) {
+            $expert = $record->{$relation};
+
+            return $expert instanceof User ? $expert->displayName() : '—';
         }
 
         $value = $record->getAttribute($column);

@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use App\Enums\Gender;
+use App\Models\Concerns\HasAssignedExpert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Civil execution register. Code 007. */
 class CivilExecution extends Model
 {
+    use HasAssignedExpert;
+
     protected $fillable = [
         'organization_id',
+        'expert_id',
         'execution_plaintiff',
         'plaintiff_address',
         'execution_defendant',

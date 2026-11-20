@@ -29,6 +29,19 @@
         @endif
     @endforeach
 
+    @if (\App\Support\Roles::allows($user, 'structure') || \App\Support\Roles::allows($user, 'experts') || \App\Support\Roles::allows($user, 'performance'))
+        <div class="staff-heading">መዋቅር</div>
+        @if (\App\Support\Roles::allows($user, 'structure'))
+            <a class="staff-link @if(request()->routeIs('admin.offices.*')) is-active @endif" href="{{ route('admin.offices.index') }}" @if(request()->routeIs('admin.offices.*')) aria-current="page" @endif>ዞን እና ወረዳ</a>
+        @endif
+        @if (\App\Support\Roles::allows($user, 'experts'))
+            <a class="staff-link @if(request()->routeIs('admin.experts.*')) is-active @endif" href="{{ route('admin.experts.index') }}" @if(request()->routeIs('admin.experts.*')) aria-current="page" @endif>ባለሙያዎች</a>
+        @endif
+        @if (\App\Support\Roles::allows($user, 'performance'))
+            <a class="staff-link @if(request()->routeIs('admin.performance.*')) is-active @endif" href="{{ route('admin.performance.index') }}" @if(request()->routeIs('admin.performance.*')) aria-current="page" @endif>አፈጻጸም</a>
+        @endif
+    @endif
+
     <div class="staff-heading">ሥርዓት</div>
     <a class="staff-link @if(request()->routeIs('settings.*')) is-active @endif" href="{{ route('settings.edit') }}" @if(request()->routeIs('settings.*')) aria-current="page" @endif>ቅንብሮች</a>
     @if (\App\Support\Roles::allows($user, 'permissions'))
