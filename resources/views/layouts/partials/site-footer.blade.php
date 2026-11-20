@@ -3,7 +3,7 @@
 @endphp
 <div class="site-footer-grid">
     <div>
-        <strong class="text-dark">{{ $siteSetting->department_name }}</strong>
+        <strong>{{ $siteSetting->department_name }}</strong>
         <div>{{ $siteSetting->address }}</div>
     </div>
     <div>

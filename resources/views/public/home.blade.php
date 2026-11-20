@@ -3,14 +3,33 @@
 @section('title', 'መነሻ')
 
 @section('content')
-    <section class="hero mb-4">
-        <p class="meta mb-2">የየም ዞን ፍትህ መምሪያ</p>
-        <h1>የዞኑ ፍትህ አገልግሎት በአንድ ቦታ</h1>
-        <p class="col-lg-9 px-0">የጉዳይ ሁኔታ በመዝገብ ቁጥር ወይም በስም ይከታተሉ፣ አዋጅና መመሪያ ያውርዱ፣ የመምሪያውን ዜናና ማስታወቂያ ያንብቡ።</p>
-        <div class="d-flex flex-wrap gap-2 mt-3">
-            <a class="btn btn-green" href="{{ route('cases.tracking') }}">ጉዳይ ይፈልጉ</a>
-            <a class="btn btn-gold" href="{{ route('laws.index') }}">ህጎችን ይመልከቱ</a>
-            <a class="btn btn-outline-secondary" href="{{ route('community.index') }}">ዜናና አስተያየት</a>
+    <section class="hero mb-5">
+        <div>
+            <p class="hero-kicker mb-2">የየም ዞን ፍትህ መምሪያ</p>
+            <h1>የዞኑ ፍትህ አገልግሎት በአንድ ቦታ</h1>
+            <p class="hero-lead">የጉዳይ ሁኔታ በመዝገብ ቁጥር ወይም በስም ይከታተሉ፣ አዋጅና መመሪያ ያውርዱ፣ የመምሪያውን ዜናና ማስታወቂያ ያንብቡ።</p>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <a class="btn btn-gold" href="{{ route('cases.tracking') }}">ጉዳይ ይፈልጉ</a>
+                <a class="btn btn-green" href="{{ route('laws.index') }}">ህጎችን ይመልከቱ</a>
+                <a class="btn btn-outline-light" href="{{ route('community.index') }}">ዜናና አስተያየት</a>
+            </div>
+        </div>
+        <div class="hero-services" aria-label="ዋና አገልግሎቶች">
+            <a href="{{ route('cases.tracking') }}">
+                <span>01</span>
+                <strong>ጉዳይ መከታተል</strong>
+                <small>በመዝገብ ቁጥር ወይም በስም</small>
+            </a>
+            <a href="{{ route('laws.index') }}">
+                <span>02</span>
+                <strong>ህጎች</strong>
+                <small>አዋጅ፣ ደንብ እና መመሪያ</small>
+            </a>
+            <a href="{{ route('community.index') }}">
+                <span>03</span>
+                <strong>ዜናና አስተያየት</strong>
+                <small>ማስታወቂያ እና የህዝብ ምላሽ</small>
+            </a>
         </div>
     </section>
 
