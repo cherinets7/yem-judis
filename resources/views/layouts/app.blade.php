@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'ዳሽቦርድ') — የየም ዞን ፍትህ መምሪያ</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @include('layouts.partials.fonts')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
@@ -25,7 +23,9 @@
 
         body {
             font-family: "Noto Sans Ethiopic", "Nyala", sans-serif;
-            background: var(--paper);
+            background:
+                radial-gradient(720px 280px at 100% -10%, rgba(182, 137, 58, .14), transparent 55%),
+                var(--paper);
             color: var(--ink);
             min-height: 100vh;
         }
@@ -114,6 +114,7 @@
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 1rem;
+            box-shadow: 0 10px 24px rgba(20, 36, 28, .04);
         }
         .kpi-card { border-top: 4px solid var(--gold); padding: 1rem 1.1rem; height: 100%; }
         .kpi-value { font-size: 2rem; font-weight: 700; line-height: 1.1; color: var(--green); }
@@ -132,6 +133,21 @@
         }
         .alert { border: 0; border-radius: .8rem; }
         .offcanvas.staff-sidebar { width: min(20rem, 88vw); }
+
+        .site-footer {
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            background: var(--card);
+        }
+
+        .site-footer strong { color: var(--ink); }
+
+        .site-footer-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem 2rem;
+        }
     </style>
     @stack('head')
 </head>
@@ -167,12 +183,18 @@
                 </div>
             </header>
 
-            <main id="content" class="px-3 px-lg-4 py-4">
+            <main id="content" class="px-3 px-lg-4 py-4 flex-grow-1">
                 @if (session('status'))
                     <div class="alert alert-success" role="status">{{ session('status') }}</div>
                 @endif
                 @yield('content')
             </main>
+
+            <footer class="site-footer mt-auto">
+                <div class="px-3 px-lg-4 py-3">
+                    @include('layouts.partials.site-footer')
+                </div>
+            </footer>
         </div>
     </div>
 

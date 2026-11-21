@@ -139,6 +139,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(PublicPortalSeeder::class);
         $this->call(OperationsSeeder::class);
+        $this->call(PortalSettingSeeder::class);
     }
 
     /**

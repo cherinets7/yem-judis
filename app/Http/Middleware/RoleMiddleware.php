@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\UserRole;
+use App\Support\PermissionCatalog;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,8 +26,17 @@ class RoleMiddleware
         }
 
         $role = $user->role instanceof UserRole ? $user->role->value : (string) $user->role;
+        $allowed = [];
 
-        if ($role === UserRole::SuperAdmin->value || in_array($role, $roles, true)) {
+        foreach ($roles as $token) {
+            if (PermissionCatalog::isGroup($token)) {
+                $allowed = array_merge($allowed, PermissionCatalog::roles($token));
+            } else {
+                $allowed[] = $token;
+            }
+        }
+
+        if ($role === UserRole::SuperAdmin->value || in_array($role, $allowed, true)) {
             return $next($request);
         }
 

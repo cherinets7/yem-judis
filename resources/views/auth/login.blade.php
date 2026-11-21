@@ -31,7 +31,7 @@
                         <input class="form-check-input" id="remember" name="remember" type="checkbox" value="1">
                         <label class="form-check-label" for="remember">አስታውሰኝ</label>
                     </div>
-                    <button class="btn btn-success w-100" type="submit">ግባ</button>
+                    <button class="btn btn-green w-100" type="submit">ግባ</button>
                 </form>
 
                 <p class="meta mt-4 mb-0">የሙከራ መለያዎች በ README ተዘርዝረዋል። የይለፍ ቃል password ነው።</p>

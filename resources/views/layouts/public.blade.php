@@ -4,32 +4,36 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'መነሻ') — የየም ዞን ፍትህ መምሪያ</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @include('layouts.partials.fonts')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --ink: #17241c;
+            --ink: #14241c;
             --green: #0f3d2e;
-            --green-deep: #0a2b20;
-            --leaf: #1f6b4a;
-            --gold: #b6893a;
-            --gold-soft: #f3e6c8;
-            --paper: #f3efe4;
-            --card: #fffdf8;
-            --line: #e3d9c4;
-            --muted: #5e6a62;
+            --green-deep: #08261c;
+            --leaf: #1c7a52;
+            --gold: #c8963e;
+            --gold-soft: #f6ead0;
+            --paper: #f4f1ea;
+            --card: #fffcf7;
+            --line: #e6dfd2;
+            --muted: #5d675f;
         }
 
         body {
             font-family: "Noto Sans Ethiopic", "Nyala", sans-serif;
             background:
-                radial-gradient(circle at top right, rgba(182, 137, 58, 0.16), transparent 28%),
+                radial-gradient(880px 420px at 100% -8%, rgba(200, 150, 62, .16), transparent 55%),
+                radial-gradient(640px 360px at -8% 18%, rgba(28, 122, 82, .08), transparent 50%),
                 var(--paper);
             color: var(--ink);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.65;
         }
+
+        main { flex: 1 0 auto; }
 
         a { color: var(--leaf); }
         a:hover { color: var(--green); }
@@ -46,19 +50,26 @@
         .skip-link:focus { top: .5rem; }
 
         .portal-header {
-            background: linear-gradient(160deg, var(--green-deep), var(--green) 55%, #145c43);
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: linear-gradient(180deg, #071910 0%, #0e3328 100%);
             color: #f7f3ea;
+            box-shadow: 0 12px 32px rgba(7, 25, 16, .18);
         }
 
+        .header-bar { padding: 1rem 0 .35rem; }
+
         .brand-mark {
-            width: 3rem;
-            height: 3rem;
+            width: 3.1rem;
+            height: 3.1rem;
             border: 1.5px solid var(--gold);
-            border-radius: 50%;
+            border-radius: 1rem;
             display: grid;
             place-items: center;
             color: var(--gold-soft);
             flex: 0 0 auto;
+            background: rgba(255, 252, 247, .06);
         }
 
         .brand-kicker {
@@ -76,11 +87,12 @@
         }
 
         .date-badge {
-            background: rgba(255, 253, 248, .08);
-            border: 1px solid rgba(243, 230, 200, .35);
+            background: rgba(255, 252, 247, .08);
+            border: 1px solid rgba(246, 234, 208, .28);
             border-radius: 1rem;
-            padding: .7rem .95rem;
+            padding: .65rem 1rem;
             min-width: 14rem;
+            backdrop-filter: blur(8px);
         }
 
         .date-badge .kicker {
@@ -102,7 +114,8 @@
         .portal-nav .nav-link {
             color: #f7f3ea;
             border-radius: 999px;
-            padding: .45rem .9rem;
+            padding: .42rem .95rem;
+            font-weight: 500;
         }
 
         .portal-nav .nav-link.active,
@@ -119,34 +132,143 @@
             filter: invert(1);
         }
 
-        main { padding: 2rem 0 3rem; }
+        main { padding: 2.25rem 0 3.5rem; }
 
         .hero {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 1.25rem;
-            padding: 1.6rem;
-            box-shadow: 0 16px 40px rgba(15, 61, 46, .06);
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(16rem, .8fr);
+            gap: 1.75rem;
+            align-items: center;
+            background:
+                radial-gradient(420px 220px at 88% 0%, rgba(200, 150, 62, .28), transparent 60%),
+                linear-gradient(145deg, #0b2a20 0%, #146046 72%, #0f3d2e 100%);
+            color: #f7f3ea;
+            border: 0;
+            border-radius: 1.75rem;
+            padding: clamp(1.4rem, 3vw, 2.4rem);
+            box-shadow: 0 28px 60px rgba(8, 38, 28, .18);
         }
 
         .hero h1 {
             font-weight: 700;
-            font-size: clamp(1.7rem, 3vw, 2.5rem);
-            line-height: 1.35;
+            font-size: clamp(1.9rem, 4vw, 3rem);
+            line-height: 1.28;
+            letter-spacing: -.02em;
+            margin: 0;
+        }
+
+        .hero-kicker {
+            color: var(--gold-soft);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .hero-lead {
+            max-width: 38rem;
+            margin: 1rem 0 0;
+            color: rgba(247, 243, 234, .88);
+            font-size: 1.05rem;
+        }
+
+        .hero .btn {
+            border-radius: 999px;
+            padding: .62rem 1.15rem;
+            font-weight: 700;
+        }
+
+        .hero .btn-outline-light {
+            border-color: rgba(247, 243, 234, .45);
+            color: #f7f3ea;
+        }
+
+        .hero .btn-outline-light:hover {
+            background: #fffcf7;
+            color: var(--green-deep);
+        }
+
+        .hero-services {
+            display: grid;
+            gap: .7rem;
+        }
+
+        .hero-services a {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto auto;
+            column-gap: .8rem;
+            text-decoration: none;
+            color: #f7f3ea;
+            background: rgba(255, 252, 247, .08);
+            border: 1px solid rgba(246, 234, 208, .18);
+            border-radius: 1rem;
+            padding: .8rem .9rem;
+        }
+
+        .hero-services a:hover {
+            background: rgba(255, 252, 247, .16);
+            color: #fff;
+        }
+
+        .hero-services span {
+            grid-row: 1 / span 2;
+            align-self: center;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .hero-services strong { font-size: 1rem; }
+        .hero-services small { color: rgba(247, 243, 234, .72); }
+
+        @media (max-width: 991.98px) {
+            .hero { grid-template-columns: 1fr; }
+            .date-badge { min-width: 0; }
         }
 
         .section-title {
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+        }
+
+        .section-title::before {
+            content: "";
+            width: .55rem;
+            height: .55rem;
+            border-radius: 50%;
+            background: var(--gold);
+            flex: 0 0 auto;
+        }
+
+        h1.section-title { font-size: clamp(1.6rem, 3vw, 2.15rem); }
+
+        .form-label { font-weight: 600; }
+
+        .form-control,
+        .form-select {
+            border-color: var(--line);
+            border-radius: .8rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--leaf);
+            box-shadow: 0 0 0 .2rem rgba(28, 122, 82, .16);
         }
 
         .portal-card {
             background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 1rem;
+            border: 1px solid rgba(230, 223, 210, .9);
+            border-radius: 1.15rem;
             height: 100%;
-            padding: 1.1rem 1.15rem;
+            padding: 1.15rem 1.2rem;
+            box-shadow: 0 12px 28px rgba(20, 36, 28, .04);
+        }
+
+        .portal-card:hover {
+            box-shadow: 0 18px 36px rgba(20, 36, 28, .08);
         }
 
         .portal-card h2,
@@ -171,6 +293,11 @@
             background: #e5f3ec;
             color: var(--green);
             font-weight: 600;
+        }
+
+        .btn-gold,
+        .btn-green {
+            border-radius: 999px;
         }
 
         .btn-gold {
@@ -203,8 +330,9 @@
         .post-list {
             background: var(--card);
             border: 1px solid var(--line);
-            border-radius: 1rem;
-            padding: 1rem;
+            border-radius: 1.15rem;
+            padding: 1.1rem;
+            box-shadow: 0 12px 28px rgba(20, 36, 28, .04);
         }
 
         .table {
@@ -240,10 +368,21 @@
 
         .post-body { white-space: pre-wrap; }
 
-        .portal-footer {
-            border-top: 1px solid var(--line);
-            color: var(--muted);
-            padding: 1.4rem 0 2rem;
+        .site-footer {
+            border-top: 0;
+            color: rgba(247, 243, 234, .78);
+            background: #0c2e23;
+            margin-top: auto;
+        }
+
+        .site-footer strong { color: var(--gold-soft); }
+
+        .site-footer-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 1rem 2rem;
+            padding: 1.8rem 0 2.1rem;
         }
 
         .page-link {
@@ -261,7 +400,7 @@
 <body>
     <a class="skip-link" href="#content">ወደ ይዘት ይሂዱ</a>
     <header class="portal-header">
-        <div class="container py-3">
+        <div class="container header-bar">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <a class="d-flex align-items-center gap-3 text-decoration-none text-reset" href="{{ route('home') }}">
                     <span class="brand-mark" aria-hidden="true">
@@ -320,13 +459,9 @@
         </div>
     </main>
 
-    <footer class="portal-footer">
-        <div class="container d-flex flex-wrap justify-content-between gap-3">
-            <div>
-                <strong class="text-dark">የየም ዞን ፍትህ መምሪያ</strong>
-                <div>ሳጃ፣ የየም ዞን፣ ማዕከላዊ ኢትዮጵያ</div>
-            </div>
-            <div>የህዝብ መረጃ በር ብቻ። የጉዳይ ዝርዝር የሚታየው ከታተመ በኋላ ነው።</div>
+    <footer class="site-footer">
+        <div class="container">
+            @include('layouts.partials.site-footer')
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
