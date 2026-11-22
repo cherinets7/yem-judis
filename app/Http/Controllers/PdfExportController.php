@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PerformanceReport;
 use App\Support\ExportRecords;
+use App\Support\PerformanceAccess;
 use App\Support\ProsecutorWeeklyMatrix;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -49,6 +51,23 @@ class PdfExportController extends Controller
                 ? ProsecutorWeeklyMatrix::title($type)
                 : 'የዐቃቤ ህግ ሳምንታዊ ሪፖርት',
         ], 'የዐቃቤ-ህግ-ሳምንታዊ.pdf');
+    }
+
+    public function performanceReport(Request $request, PerformanceReport $report): Response
+    {
+        $report = PerformanceAccess::visible($request, $report);
+        $report->load(['user', 'organization', 'reviewer']);
+
+        return $this->render('pdf.performance', [
+            'reports' => collect([$report]),
+        ], 'አፈጻጸም-'.$report->id.'.pdf');
+    }
+
+    public function performanceCollection(Request $request): Response
+    {
+        return $this->render('pdf.performance', [
+            'reports' => PerformanceAccess::query($request)->get(),
+        ], 'አፈጻጸም.pdf');
     }
 
     /**

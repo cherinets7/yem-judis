@@ -6,7 +6,9 @@ use App\Enums\PerformancePeriod;
 use App\Enums\ReviewStatus;
 use App\Helpers\EthiopianDateHelper;
 use App\Models\PerformanceReport;
+use App\Support\AuditLogger;
 use App\Support\OrganizationScope;
+use App\Support\PerformanceAlerts;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,6 +65,8 @@ class PerformanceReportController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $report = PerformanceReport::query()->create($this->payload($request));
+        PerformanceAlerts::notify($report);
+        AuditLogger::record($request->user(), $report, 'created', $report->status === ReviewStatus::Submitted ? 'አፈጻጸም ለኃላፊ ቀርቧል።' : 'የአፈጻጸም ረቂቅ ተቀምጧል።');
 
         return redirect()
             ->route('admin.performance.show', $report)
@@ -95,6 +99,8 @@ class PerformanceReportController extends Controller
     {
         $report = $this->editable($request, $report);
         $report->update($this->payload($request, $report));
+        PerformanceAlerts::notify($report);
+        AuditLogger::record($request->user(), $report, 'updated', $report->status === ReviewStatus::Submitted ? 'አፈጻጸም ለኃላፊ ቀርቧል።' : 'አፈጻጸም ተዘምኗል።');
 
         return redirect()
             ->route('admin.performance.show', $report)
@@ -135,6 +141,7 @@ class PerformanceReportController extends Controller
         $report->reviewed_by = $request->user()->id;
         $report->review_note = $data['review_note'] ?? null;
         $report->save();
+        AuditLogger::record($request->user(), $report, $status->value, 'አፈጻጸም፡ '.$message);
 
         return back()->with('status', $message);
     }

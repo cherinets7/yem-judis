@@ -2,6 +2,7 @@
     use App\Enums\ReviewStatus;
 @endphp
 <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-sm btn-outline-success" href="{{ route('admin.'.$definition['uri'].'.show', $record) }}">ይመልከቱ</a>
     <a class="btn btn-sm btn-outline-success" href="{{ route('admin.'.$definition['uri'].'.edit', $record) }}">አርም</a>
 
     @if ($canReview && $definition['review'] && $record->status !== ReviewStatus::Approved)

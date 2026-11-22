@@ -175,6 +175,8 @@
                         <div class="fw-bold">@yield('title', 'ዳሽቦርድ')</div>
                         <div class="date-pill d-inline-block mt-1">{{ \App\Helpers\EthiopianDateHelper::now() }} · የበጀት ዓመት {{ \App\Helpers\EthiopianDateHelper::currentBudgetYear() }}</div>
                     </div>
+                    <a class="btn btn-outline-success btn-sm" href="{{ route('notifications.index') }}">መልዕክት @if (auth()->user()->unreadNotifications()->count()) ({{ auth()->user()->unreadNotifications()->count() }}) @endif</a>
+                    <a class="btn btn-outline-success btn-sm" href="{{ route('password.edit') }}">የይለፍ ቃል</a>
                     <div class="user-pill">{{ auth()->user()->displayName() }} · {{ auth()->user()->role->label() }}</div>
                     <form method="post" action="{{ route('logout') }}">
                         @csrf

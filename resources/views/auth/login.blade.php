@@ -9,6 +9,10 @@
                 <h1 class="h4 mb-1">የሰራተኛ መግቢያ</h1>
                 <p class="meta mb-4">የየም ዞን ፍትህ መምሪያ የውስጥ መዝገብ።</p>
 
+                @if (session('status'))
+                    <div class="alert alert-success" role="status">{{ session('status') }}</div>
+                @endif
+
                 @if ($errors->any())
                     <div class="alert alert-danger" role="alert">
                         @foreach ($errors->all() as $error)
@@ -33,6 +37,7 @@
                     </div>
                     <button class="btn btn-green w-100" type="submit">ግባ</button>
                 </form>
+                <p class="mt-3 mb-0"><a href="{{ route('password.request') }}">የይለፍ ቃል ረስተዋል?</a></p>
 
                 <p class="meta mt-4 mb-0">የሙከራ መለያዎች በ README ተዘርዝረዋል። የይለፍ ቃል password ነው።</p>
             </section>

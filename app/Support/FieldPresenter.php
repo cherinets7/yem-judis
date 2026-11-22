@@ -60,6 +60,23 @@ class FieldPresenter
         return Str::limit(trim((string) $value), 80);
     }
 
+    public static function detail(Model $record, string $column): string
+    {
+        $shown = self::show($record, $column);
+
+        if ($shown === '—') {
+            return $shown;
+        }
+
+        $value = $record->getAttribute($column);
+
+        if (is_string($value) && mb_strlen($value) > 80) {
+            return trim($value);
+        }
+
+        return $shown;
+    }
+
     /**
      * @param  array<string, mixed>  $definition
      */

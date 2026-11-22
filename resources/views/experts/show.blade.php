@@ -17,6 +17,14 @@
                 @unless ($expert->is(auth()->user()))
                     <form method="post" action="{{ route('admin.experts.deactivate', $expert) }}">
                         @csrf
+                        @if ($expert->is_active && collect($links)->sum('count') > 0)
+                            <select class="form-select form-select-sm mb-2" name="transfer_to" required>
+                                <option value="">ጉዳዩን የሚረከብ</option>
+                                @foreach ($successors as $successor)
+                                    <option value="{{ $successor->id }}">{{ $successor->displayName() }}</option>
+                                @endforeach
+                            </select>
+                        @endif
                         <button class="btn btn-outline-danger" type="submit">{{ $expert->is_active ? 'አጥፋ' : 'አብራ' }}</button>
                     </form>
                 @endunless
@@ -25,6 +33,16 @@
     </section>
 
     <div class="row g-4">
+        <div class="col-lg-6">
+            <section class="page-card p-3 h-100">
+                <h2 class="h6">የሰው ሀብት መገለጫ</h2>
+                @if ($expert->staffProfile)
+                    <p class="mb-0"><a href="{{ route('admin.staff-profiles.edit', $expert->staffProfile) }}">{{ $expert->staffProfile->full_name }}</a> · {{ $expert->staffProfile->staff_category->label() }}</p>
+                @else
+                    <div class="empty-state">ከመግቢያ መለያ ጋር የተያያዘ መገለጫ የለም።</div>
+                @endif
+            </section>
+        </div>
         <div class="col-lg-6">
             <section class="page-card p-3 h-100">
                 <h2 class="h6">የተሳሰሩ መዝገቦች</h2>

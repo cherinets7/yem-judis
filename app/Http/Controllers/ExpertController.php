@@ -12,6 +12,8 @@ use App\Models\Organization;
 use App\Models\PublicCaseTracking;
 use App\Models\User;
 use App\Models\WorkUnit;
+use App\Support\AuditLogger;
+use App\Support\ExpertProfile;
 use App\Support\OrganizationScope;
 use App\Support\PermissionCatalog;
 use App\Support\Roles;
@@ -57,6 +59,8 @@ class ExpertController extends Controller
         $expert = User::query()->create($this->validated($request) + [
             'email_verified_at' => now(),
         ]);
+        ExpertProfile::sync($expert, $request->user());
+        AuditLogger::record($request->user(), $expert, 'created', 'ባለሙያ ተመዝግቧል፡ '.$expert->displayName());
 
         return redirect()
             ->route('admin.experts.show', $expert)
@@ -66,11 +70,18 @@ class ExpertController extends Controller
     public function show(User $user): View
     {
         $expert = $this->find($user);
-        $expert->load(['organization', 'workUnit', 'performanceReports']);
+        $expert->load(['organization', 'workUnit', 'performanceReports', 'staffProfile']);
 
         return view('experts.show', [
             'expert' => $expert,
             'links' => $this->links($expert),
+            'successors' => User::query()
+                ->whereIn('organization_id', OrganizationScope::ids())
+                ->where('role', '!=', UserRole::SuperAdmin)
+                ->where('is_active', true)
+                ->whereKeyNot($expert->id)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -83,21 +94,31 @@ class ExpertController extends Controller
     {
         $expert = $this->find($user);
         $expert->update($this->validated($request, $expert));
+        ExpertProfile::sync($expert, $request->user());
+        AuditLogger::record($request->user(), $expert, 'updated', 'ባለሙያ ተዘምኗል፡ '.$expert->displayName());
 
         return redirect()
             ->route('admin.experts.show', $expert)
             ->with('status', 'ተዘምኗል።');
     }
 
-    public function deactivate(User $user): RedirectResponse
+    public function deactivate(Request $request, User $user): RedirectResponse
     {
         $expert = $this->find($user);
         abort_if($expert->is(auth()->user()), 403, 'የራስዎን መለያ ማጥፋት አይቻልም።');
 
+        if ($expert->is_active && $this->assignedCount($expert) > 0) {
+            $successor = $this->successor($request, $expert);
+            $this->transfer($expert, $successor);
+            AuditLogger::record($request->user(), $expert, 'updated', 'ጉዳዮች ወደ '.$successor->displayName().' ተዘዋውረዋል።');
+        }
+
         $expert->is_active = ! $expert->is_active;
         $expert->save();
+        ExpertProfile::sync($expert, $request->user());
+        AuditLogger::record($request->user(), $expert, 'updated', $expert->is_active ? 'ባለሙያ በርቷል።' : 'ባለሙያ ጠፍቷል።');
 
-        return back()->with('status', $expert->is_active ? 'በድጋሚ በርቷል።' : 'ጠፍቷል።');
+        return back()->with('status', $expert->is_active ? 'በድጋሚ በርቷል።' : 'ጠፍቷል። ጉዳዮቹ ከነበሩ ተዘዋውረዋል።');
     }
 
     private function find(User $user): User
@@ -139,6 +160,13 @@ class ExpertController extends Controller
         $unit = WorkUnit::query()
             ->whereKey($data['work_unit_id'])
             ->where('organization_id', $data['organization_id'])
+            ->where(function ($query) use ($expert): void {
+                $query->where('is_active', true);
+
+                if ($expert?->work_unit_id) {
+                    $query->orWhere('id', $expert->work_unit_id);
+                }
+            })
             ->first();
 
         if ($unit === null) {
@@ -191,7 +219,17 @@ class ExpertController extends Controller
                 })
                 ->orderBy('name')
                 ->get(),
-            'workUnits' => WorkUnit::query()->whereIn('organization_id', $ids)->orderBy('name')->get(),
+            'workUnits' => WorkUnit::query()
+                ->whereIn('organization_id', $ids)
+                ->where(function ($query) use ($expert): void {
+                    $query->where('is_active', true);
+
+                    if ($expert?->work_unit_id) {
+                        $query->orWhere('id', $expert->work_unit_id);
+                    }
+                })
+                ->orderBy('name')
+                ->get(),
             'roles' => array_map(
                 fn (string $role) => UserRole::from($role),
                 PermissionCatalog::assignableRoles(),
@@ -217,5 +255,62 @@ class ExpertController extends Controller
             ->map(fn (int $count, string $label): array => ['label' => $label, 'count' => $count])
             ->values()
             ->all();
+    }
+
+    private function assignedCount(User $expert): int
+    {
+        return array_sum(array_map(
+            fn (string $model): int => $model::query()->where('expert_id', $expert->id)->count(),
+            $this->caseModels(),
+        ));
+    }
+
+    private function successor(Request $request, User $expert): User
+    {
+        $data = $request->validate([
+            'transfer_to' => ['required', 'integer'],
+        ], [
+            'required' => 'ጉዳዩን የሚረከብ ባለሙያ ይምረጡ።',
+        ], [
+            'transfer_to' => 'ተረካቢ',
+        ]);
+
+        $successor = User::query()
+            ->whereKey($data['transfer_to'])
+            ->whereIn('organization_id', OrganizationScope::ids())
+            ->where('role', '!=', UserRole::SuperAdmin)
+            ->where('is_active', true)
+            ->whereKeyNot($expert->id)
+            ->first();
+
+        if ($successor === null) {
+            throw ValidationException::withMessages([
+                'transfer_to' => 'ተረካቢው ባለሙያ አልተገኘም።',
+            ]);
+        }
+
+        return $successor;
+    }
+
+    private function transfer(User $from, User $to): void
+    {
+        foreach ($this->caseModels() as $model) {
+            $model::query()->where('expert_id', $from->id)->update(['expert_id' => $to->id]);
+        }
+    }
+
+    /**
+     * @return list<class-string>
+     */
+    private function caseModels(): array
+    {
+        return [
+            CriminalCase::class,
+            CriminalAppeal::class,
+            CivilCase::class,
+            CivilAppeal::class,
+            CivilExecution::class,
+            PublicCaseTracking::class,
+        ];
     }
 }

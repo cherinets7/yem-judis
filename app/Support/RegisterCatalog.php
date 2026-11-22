@@ -282,6 +282,7 @@ class RegisterCatalog
                 'code' => '001–002',
                 'publish' => true,
                 'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_file_number', 'defendant_names', 'court_file_number', 'assigned_prosecutor'],
                 'columns' => ['prosecutor_file_number', 'court_level', 'defendant_names', 'expert_id'],
                 'fields' => [
@@ -311,6 +312,7 @@ class RegisterCatalog
                 'code' => '003',
                 'publish' => true,
                 'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_appeal_number', 'appellant_name', 'respondent_name', 'lower_court_file_number'],
                 'columns' => ['prosecutor_appeal_number', 'appellant_name', 'respondent_name', 'expert_id'],
                 'fields' => [
@@ -334,6 +336,7 @@ class RegisterCatalog
                 'code' => '004–005',
                 'publish' => true,
                 'project_public' => true,
+                'documents' => true,
                 'search' => ['plaintiff_name', 'defendant_name', 'prosecutor_case_number', 'court_file_number'],
                 'columns' => ['plaintiff_name', 'defendant_name', 'court_level', 'expert_id'],
                 'fields' => [
@@ -363,6 +366,7 @@ class RegisterCatalog
                 'code' => '006',
                 'publish' => true,
                 'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_appeal_number', 'appellant_address', 'respondent_address', 'lower_court_file_number'],
                 'columns' => ['prosecutor_appeal_number', 'appellant_type', 'appeal_filed_date_ec', 'expert_id'],
                 'fields' => [
@@ -386,6 +390,7 @@ class RegisterCatalog
                 'code' => '007',
                 'publish' => true,
                 'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_file_number', 'execution_plaintiff', 'execution_defendant', 'court_file_number'],
                 'columns' => ['prosecutor_file_number', 'execution_plaintiff', 'execution_defendant', 'expert_id'],
                 'fields' => [
@@ -548,6 +553,7 @@ class RegisterCatalog
             'note' => false,
             'publish' => false,
             'project_public' => false,
+            'documents' => false,
             'nullable_org' => false,
             'search' => [],
             'columns' => [],

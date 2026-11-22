@@ -42,6 +42,10 @@
         @endif
     @endif
 
+    @if (\App\Support\Roles::allows($user, 'reviewers'))
+        <a class="staff-link @if(request()->routeIs('admin.audit.*')) is-active @endif" href="{{ route('admin.audit.index') }}" @if(request()->routeIs('admin.audit.*')) aria-current="page" @endif>የለውጥ ታሪክ</a>
+    @endif
+
     <div class="staff-heading">ሥርዓት</div>
     <a class="staff-link @if(request()->routeIs('settings.*')) is-active @endif" href="{{ route('settings.edit') }}" @if(request()->routeIs('settings.*')) aria-current="page" @endif>ቅንብሮች</a>
     @if (\App\Support\Roles::allows($user, 'permissions'))

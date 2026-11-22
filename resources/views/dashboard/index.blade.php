@@ -35,6 +35,19 @@
     </div>
 
     <section class="page-card p-3 p-lg-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+            <h2 class="h5 mb-0">የሪፖርት ድምር</h2>
+            <span class="kpi-value">{{ number_format($waitingTotal) }}</span>
+        </div>
+        <p class="meta">ለማጽደቅ የቀረቡ ሳምንታዊ፣ ዓመታዊ እና የባለሙያ አፈጻጸም በአንድ ቁጥር።</p>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach ($queues as $queue)
+                <span>{{ $queue['label'] }}፡ {{ $queue['count'] }}</span>
+            @endforeach
+        </div>
+    </section>
+
+    <section class="page-card p-3 p-lg-4 mb-4">
         <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
             <h2 class="h5 mb-0">{{ $performanceReviewer ? 'ለማጽደቅ የቀረበ አፈጻጸም' : 'የእኔ አፈጻጸም' }}</h2>
             <a href="{{ route('admin.performance.index', $performanceReviewer ? ['status' => 'submitted'] : ['mine' => 1]) }}">ሁሉንም ይመልከቱ</a>

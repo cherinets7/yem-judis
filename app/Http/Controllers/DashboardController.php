@@ -79,6 +79,13 @@ class DashboardController extends Controller
 
         $user = auth()->user();
         $reviewer = Roles::allows($user, 'reviewers');
+        $queues = [
+            ['label' => 'አፈጻጸም', 'count' => $this->submitted(PerformanceReport::class, $ids)],
+            ['label' => 'ሳምንታዊ', 'count' => $this->submitted(WeeklyReport::class, $ids)],
+            ['label' => 'ዐቃቤ ህግ ሳምንታዊ', 'count' => $this->submitted(ProsecutorWeeklyReport::class, $ids)],
+            ['label' => 'ዓመታዊ', 'count' => $this->submitted(AnnualPlan::class, $ids)],
+            ['label' => 'ስትራቴጂክ', 'count' => $this->submitted(StrategicFocusData::class, $ids)],
+        ];
         $performance = PerformanceReport::query()
             ->with(['user', 'organization'])
             ->when(
@@ -104,6 +111,8 @@ class DashboardController extends Controller
             'matrix' => $matrix,
             'performance' => $performance,
             'performanceReviewer' => $reviewer,
+            'queues' => $queues,
+            'waitingTotal' => array_sum(array_column($queues, 'count')),
         ]);
     }
 
@@ -133,6 +142,18 @@ class DashboardController extends Controller
         return view('dashboard.woredas', [
             'offices' => $offices,
         ]);
+    }
+
+    /**
+     * @param  class-string  $model
+     * @param  list<int>  $ids
+     */
+    private function submitted(string $model, array $ids): int
+    {
+        return $model::query()
+            ->whereIn('organization_id', $ids)
+            ->where('status', ReviewStatus::Submitted)
+            ->count();
     }
 
     private function typeOrder(Organization $organization): string

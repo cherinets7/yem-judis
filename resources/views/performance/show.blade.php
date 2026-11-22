@@ -13,16 +13,18 @@
                     <div class="meta">{{ $report->period_label }}</div>
                 @endif
             </div>
-            @if ($report->user_id === auth()->id() && $report->isOpen())
-                <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-success" href="{{ route('admin.performance.pdf', $report) }}">PDF</a>
+                <a class="btn btn-outline-success" href="{{ route('admin.performance.excel', $report) }}">ኤክሴል</a>
+                @if ($report->user_id === auth()->id() && $report->isOpen())
                     <a class="btn btn-outline-success" href="{{ route('admin.performance.edit', $report) }}">አርም</a>
                     <form method="post" action="{{ route('admin.performance.destroy', $report) }}" onsubmit="return confirm('ይህ ረቂቅ ይሰረዝ?');">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-outline-danger" type="submit">ሰርዝ</button>
                     </form>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
 
         <h2 class="h6">የታቀደ</h2>

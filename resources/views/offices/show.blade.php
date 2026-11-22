@@ -26,15 +26,26 @@
         <div class="col-lg-6">
             <section class="page-card p-3 h-100">
                 <h2 class="h6">የስራ ክፍሎች</h2>
-                @if ($office->workUnits->isEmpty())
+                @forelse ($office->workUnits as $unit)
+                    <form class="d-flex flex-wrap gap-2 mb-2" method="post" action="{{ route('admin.offices.units.update', [$office, $unit]) }}">
+                        @csrf
+                        @method('PUT')
+                        <input class="form-control form-control-sm" name="name" value="{{ $unit->name }}" required>
+                        <button class="btn btn-sm btn-outline-success" type="submit">አርም</button>
+                    </form>
+                    <form class="mb-3" method="post" action="{{ route('admin.offices.units.deactivate', [$office, $unit]) }}">
+                        @csrf
+                        <button class="btn btn-sm btn-outline-danger" type="submit">{{ $unit->is_active ? 'አጥፋ' : 'አብራ' }}</button>
+                        <span class="meta">{{ $unit->is_active ? 'በርቷል' : 'ጠፍቷል' }}</span>
+                    </form>
+                @empty
                     <div class="empty-state">የስራ ክፍል አልተመዘገበም።</div>
-                @else
-                    <ul class="mb-0">
-                        @foreach ($office->workUnits as $unit)
-                            <li>{{ preg_replace('/\s*\([^)]*\)\s*$/u', '', $unit->name) }}</li>
-                        @endforeach
-                    </ul>
-                @endif
+                @endforelse
+                <form class="d-flex flex-wrap gap-2" method="post" action="{{ route('admin.offices.units.store', $office) }}">
+                    @csrf
+                    <input class="form-control form-control-sm @error('name') is-invalid @enderror" name="name" placeholder="አዲስ የስራ ክፍል" required>
+                    <button class="btn btn-sm btn-success" type="submit">ጨምር</button>
+                </form>
             </section>
         </div>
         <div class="col-lg-6">
