@@ -9,6 +9,7 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Models\WorkUnit;
 use App\Support\OrganizationScope;
+use App\Support\PublicCaseProjector;
 use App\Support\RegisterCatalog;
 use App\Support\Roles;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,7 +49,8 @@ abstract class RegisterResourceController extends Controller
     {
         $definition = $this->definition();
         $data = $this->validated($request, $definition);
-        $definition['model']::query()->create($data);
+        $record = $definition['model']::query()->create($data);
+        $this->project($definition, $record);
 
         return redirect()
             ->route($this->routeName('index'))
@@ -65,6 +67,7 @@ abstract class RegisterResourceController extends Controller
         $definition = $this->definition();
         $record = $this->find($request);
         $record->update($this->validated($request, $definition, $record));
+        $this->project($definition, $record);
 
         return redirect()
             ->route($this->routeName('edit'), $record)
@@ -73,7 +76,9 @@ abstract class RegisterResourceController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        $this->find($request)->delete();
+        $record = $this->find($request);
+        $this->project($this->definition(), $record, true);
+        $record->delete();
 
         return redirect()
             ->route($this->routeName('index'))
@@ -97,6 +102,17 @@ abstract class RegisterResourceController extends Controller
 
         $record = $this->find($request);
         $published = $request->boolean('is_published');
+
+        if ($definition['project_public'] ?? false) {
+            $tracking = PublicCaseProjector::sync($record);
+            abort_if($tracking === null, 404);
+            $tracking->is_published = $published;
+            $tracking->updated_by = $request->user()->id;
+            $tracking->save();
+
+            return back()->with('status', $published ? 'ለህዝብ ታትሟል።' : 'ከህዝብ ተደብቋል።');
+        }
+
         $record->is_published = $published;
 
         if (in_array('updated_by', $record->getFillable(), true)) {
@@ -116,6 +132,24 @@ abstract class RegisterResourceController extends Controller
         return RegisterCatalog::get($this->register);
     }
 
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    protected function project(array $definition, Model $record, bool $forget = false): void
+    {
+        if (! ($definition['project_public'] ?? false)) {
+            return;
+        }
+
+        if ($forget) {
+            PublicCaseProjector::forget($record);
+
+            return;
+        }
+
+        PublicCaseProjector::sync($record->fresh() ?? $record);
+    }
+
     protected function find(Request $request): Model
     {
         $id = $request->route('record');
@@ -133,6 +167,10 @@ abstract class RegisterResourceController extends Controller
 
         if (method_exists($instance, 'organization')) {
             $query->with('organization');
+        }
+
+        if ($definition['project_public'] ?? false) {
+            $query->with('publicTracking');
         }
 
         if (method_exists($instance, 'workUnit')) {

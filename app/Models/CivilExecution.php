@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Gender;
 use App\Models\Concerns\HasAssignedExpert;
+use App\Models\Concerns\ProjectsToPublicCase;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CivilExecution extends Model
 {
     use HasAssignedExpert;
+    use ProjectsToPublicCase;
 
     protected $fillable = [
         'organization_id',

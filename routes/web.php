@@ -12,7 +12,9 @@ Route::get('/cases-tracking', [PublicPortalController::class, 'cases'])->name('c
 Route::get('/laws', [PublicPortalController::class, 'laws'])->name('laws.index');
 Route::get('/laws/{law}/download', [PublicPortalController::class, 'downloadLaw'])->name('laws.download');
 Route::get('/community', [PublicPortalController::class, 'community'])->name('community.index');
-Route::post('/community/feedback', [PublicPortalController::class, 'storeFeedback'])->name('community.feedback');
+Route::post('/community/feedback', [PublicPortalController::class, 'storeFeedback'])
+    ->middleware('throttle:5,1')
+    ->name('community.feedback');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');

@@ -173,6 +173,18 @@ class DirectoryAndPerformanceTest extends TestCase
             ->assertNotFound();
 
         $this->actingAs($head)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('ለማጽደቅ የቀረበ አፈጻጸም')
+            ->assertSee($legal->displayName())
+            ->assertSee('ወራዊ');
+
+        $this->actingAs($office)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertDontSee($legal->displayName());
+
+        $this->actingAs($head)
             ->get(route('admin.performance.index'))
             ->assertOk()
             ->assertSee($legal->displayName())

@@ -26,7 +26,7 @@
     @if ($tab === 'feedback')
         <section class="portal-card mb-4">
             <h2>አስተያየት ያስተላልፉ</h2>
-            <p class="meta">ስምዎንና አስተያየትዎን ይጻፉ። የሚልኩት አስተያየት በዚህ ገጽ ላይ ይታያል።</p>
+            <p class="meta">ስምዎንና አስተያየትዎን ይጻፉ። አስተያየቱ ከተገመገመ እና ከታተመ በኋላ በዚህ ገጽ ላይ ይታያል።</p>
             @if (session('status'))
                 <div class="alert alert-success" role="status">{{ session('status') }}</div>
             @endif
@@ -71,7 +71,7 @@
     @empty
         <div class="empty-state">
             @if ($tab === 'feedback')
-                እስካሁን የታተመ አስተያየት የለም። የመጀመሪያው ይሁኑ።
+                እስካሁን የታተመ አስተያየት የለም።
             @else
                 በዚህ ክፍል ምንም የታተመ ይዘት የለም።
             @endif
