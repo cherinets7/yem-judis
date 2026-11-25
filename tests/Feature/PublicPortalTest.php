@@ -28,7 +28,7 @@ class PublicPortalTest extends TestCase
             ->assertOk()
             ->assertSee('Noto Sans Ethiopic', false)
             ->assertSee('bootstrap@5.3.3', false)
-            ->assertSee('የጉዳዮች አስተዳደር')
+            ->assertSee('ጉዳይ መከታተያ')
             ->assertSee('የጉዳይ ክትትል በመስመር ላይ ተከፈተ')
             ->assertSee('የሰነድ ምዝገባ የአገልግሎት ሰዓት')
             ->assertSee('የወንጀለኛ መቅጫ ሕግ')
@@ -78,9 +78,28 @@ class PublicPortalTest extends TestCase
             'category' => 'manual',
             'title' => 'ፋይል የሌለው ማኑዋል',
             'file_path' => 'laws/missing-file.txt',
+            'is_published' => true,
         ]);
 
         $this->get(route('laws.download', $missing))->assertNotFound();
+
+        $hidden = Law::query()->create([
+            'jurisdiction' => 'federal',
+            'category' => 'manual',
+            'title' => 'ያልታተመ ህግ ረቂቅ',
+            'file_path' => 'laws/proclamation-414-1996.txt',
+            'is_published' => false,
+        ]);
+
+        $this->get('/laws')->assertDontSee('ያልታተመ ህግ ረቂቅ');
+        $this->get(route('laws.download', $hidden))->assertNotFound();
+    }
+
+    public function test_about_services_and_contacts_pages_are_public(): void
+    {
+        $this->get('/about')->assertOk()->assertSee('ስለ');
+        $this->get('/services')->assertOk()->assertSee('አገልግሎቶች');
+        $this->get('/contacts')->assertOk()->assertSee('አድራሻ');
     }
 
     public function test_community_tabs_and_public_feedback(): void

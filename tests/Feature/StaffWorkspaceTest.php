@@ -34,6 +34,13 @@ class StaffWorkspaceTest extends TestCase
         $this->post(route('login.store'), [
             'email' => 'zone.head@yemjustice.test',
             'password' => 'password',
+        ])->assertRedirect(route('two-factor.edit'));
+
+        $this->post(route('logout'))->assertRedirect(route('home'));
+
+        $this->post(route('login.store'), [
+            'email' => 'legal.expert@yemjustice.test',
+            'password' => 'password',
         ])->assertRedirect(route('dashboard'));
 
         $this->post(route('logout'))->assertRedirect(route('home'));
@@ -156,15 +163,15 @@ class StaffWorkspaceTest extends TestCase
             'title' => 'የተሻሻለ እቅድ',
             'document_type' => 'annual_report',
             'status' => 'draft',
-        ])->assertRedirect(route('admin.annual-plans.edit', $plan));
+        ])->assertForbidden();
 
         $this->assertSame('approved', $plan->fresh()->status->value);
-        $this->assertSame('የተሻሻለ እቅድ', $plan->fresh()->title);
+        $this->assertSame('የሳጃ ዓመታዊ እቅድ', $plan->fresh()->title);
 
         $this->actingAs($planner)
             ->delete(route('admin.annual-plans.destroy', $plan))
-            ->assertRedirect(route('admin.annual-plans.index'));
-        $this->assertModelMissing($plan);
+            ->assertForbidden();
+        $this->assertModelExists($plan);
     }
 
     public function test_weekly_report_rejects_a_duplicate_week_for_the_same_unit(): void

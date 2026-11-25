@@ -20,14 +20,6 @@ class ExportRecords
             abort(404);
         }
 
-        if ($key === 'staff-profiles') {
-            abort_unless(Roles::allows(auth()->user(), Roles::HR), 403, 'ይህን ገጽ የመጠቀም ፈቃድ የለዎትም።');
-
-            return $definition;
-        }
-
-        abort_unless(! empty($definition['code']), 404);
-
         foreach (RegisterCatalog::sections() as $section) {
             if (in_array($key, $section['keys'], true)) {
                 abort_unless(Roles::allows(auth()->user(), $section['roles']), 403, 'ይህን ገጽ የመጠቀም ፈቃድ የለዎትም።');

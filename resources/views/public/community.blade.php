@@ -77,4 +77,6 @@
             @endif
         </div>
     @endforelse
+
+    @include('public.partials.pager', ['paginator' => $posts])
 @endsection

@@ -39,6 +39,14 @@
                     <label class="form-label" for="footer_note">የፉተር ማስታወሻ</label>
                     <textarea class="form-control" id="footer_note" name="footer_note" rows="3" @disabled(! $canEdit) required>{{ old('footer_note', $setting->footer_note) }}</textarea>
                 </div>
+                <div class="col-12">
+                    <label class="form-label" for="about_text">ስለ እኛ ጽሑፍ</label>
+                    <textarea class="form-control" id="about_text" name="about_text" rows="3" @disabled(! $canEdit)>{{ old('about_text', $setting->about_text) }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="services_text">አገልግሎቶች (እያንዳንዱ መስመር አንድ)</label>
+                    <textarea class="form-control" id="services_text" name="services_text" rows="4" @disabled(! $canEdit)>{{ old('services_text', $setting->services_text) }}</textarea>
+                </div>
             </div>
             @if ($canEdit)
                 <button class="btn btn-success mt-4" type="submit">አስቀምጥ</button>

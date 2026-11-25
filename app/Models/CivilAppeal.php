@@ -24,6 +24,8 @@ class CivilAppeal extends Model
         'appointment_date_ec',
         'appointment_reason',
         'appellant_type',
+        'appellant_name',
+        'respondent_name',
         'appellant_address',
         'respondent_address',
         'age',

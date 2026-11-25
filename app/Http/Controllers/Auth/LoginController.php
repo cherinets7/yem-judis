@@ -73,6 +73,12 @@ class LoginController extends Controller
             return redirect()->route('two-factor.challenge');
         }
 
+        if (TwoFactor::requiredFor($request->user()) && ! TwoFactor::enabled($request->user())) {
+            return redirect()
+                ->route('two-factor.edit')
+                ->with('status', 'ለእርስዎ ሚና ሁለት ደረጃ ማረጋገጫ ማንቃት ያስፈልጋል።');
+        }
+
         return redirect()->intended(route('dashboard'));
     }
 

@@ -26,6 +26,8 @@ class SettingController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255'],
             'footer_note' => ['required', 'string', 'max:500'],
+            'about_text' => ['nullable', 'string', 'max:4000'],
+            'services_text' => ['nullable', 'string', 'max:4000'],
         ]);
 
         $setting = Setting::current();
@@ -35,6 +37,8 @@ class SettingController extends Controller
             'phone' => $data['phone'] !== '' ? $data['phone'] : null,
             'email' => $data['email'] !== '' ? $data['email'] : null,
             'footer_note' => $data['footer_note'],
+            'about_text' => filled($data['about_text'] ?? null) ? $data['about_text'] : null,
+            'services_text' => filled($data['services_text'] ?? null) ? $data['services_text'] : null,
             'updated_by' => $request->user()->id,
         ]);
         $setting->save();

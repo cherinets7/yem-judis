@@ -11,6 +11,8 @@ use App\Models\CommunityPost;
 use App\Models\Law;
 use App\Models\Organization;
 use App\Models\PublicCaseTracking;
+use App\Models\Setting;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +27,28 @@ class PublicPortalController extends Controller
         return view('public.home', [
             'news' => $this->publishedPosts(CommunityPostType::News, 3),
             'announcements' => $this->publishedPosts(CommunityPostType::Announcement, 3),
-            'laws' => Law::query()->latest()->take(4)->get(),
+            'laws' => Law::query()->where('is_published', true)->latest()->take(4)->get(),
+        ]);
+    }
+
+    public function about(): View
+    {
+        return view('public.about', [
+            'setting' => Setting::current(),
+        ]);
+    }
+
+    public function services(): View
+    {
+        return view('public.services', [
+            'setting' => Setting::current(),
+        ]);
+    }
+
+    public function contacts(): View
+    {
+        return view('public.contacts', [
+            'setting' => Setting::current(),
         ]);
     }
 
@@ -68,6 +91,7 @@ class PublicPortalController extends Controller
         $category = $request->string('category')->toString();
 
         $laws = Law::query()
+            ->where('is_published', true)
             ->when(
                 in_array($jurisdiction, LawJurisdiction::values(), true),
                 fn ($query) => $query->where('jurisdiction', $jurisdiction),
@@ -91,6 +115,8 @@ class PublicPortalController extends Controller
 
     public function downloadLaw(Law $law): StreamedResponse
     {
+        abort_unless($law->is_published, 404, 'የህጉ ፋይል አልተገኘም።');
+
         $path = $law->file_path;
 
         if (! is_string($path) || $path === '' || str_contains($path, '..') || str_starts_with($path, '/')) {
@@ -116,7 +142,7 @@ class PublicPortalController extends Controller
 
         return view('public.community', [
             'tab' => $tab,
-            'posts' => $this->publishedPosts($this->tabType($tab), 12),
+            'posts' => $this->publishedPostsPage($this->tabType($tab)),
         ]);
     }
 
@@ -178,6 +204,16 @@ class PublicPortalController extends Controller
             ->latest()
             ->take($limit)
             ->get();
+    }
+
+    private function publishedPostsPage(CommunityPostType $type): LengthAwarePaginator
+    {
+        return CommunityPost::query()
+            ->where('type', $type)
+            ->where('is_published', true)
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
     }
 
     private function escapeLike(string $value): string

@@ -17,6 +17,7 @@ class Law extends Model
         'issued_year_ec',
         'description',
         'file_path',
+        'is_published',
         'uploaded_by',
     ];
 
@@ -24,6 +25,7 @@ class Law extends Model
         'jurisdiction' => LawJurisdiction::class,
         'category' => LawCategory::class,
         'issued_year_ec' => 'integer',
+        'is_published' => 'boolean',
     ];
 
     public function uploader(): BelongsTo
