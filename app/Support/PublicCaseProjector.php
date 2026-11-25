@@ -72,6 +72,8 @@ class PublicCaseProjector
             'case_type' => $mapped['case_type'],
             'court_level' => $mapped['court_level'],
             'final_outcome' => $mapped['final_outcome'],
+            'appointment_date_ec' => self::clip($record->getAttribute('appointment_date_ec')),
+            'appointment_reason' => self::clip($record->getAttribute('appointment_reason')),
         ];
     }
 

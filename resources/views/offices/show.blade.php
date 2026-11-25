@@ -16,6 +16,14 @@
                 <a class="btn btn-outline-success" href="{{ route('admin.offices.edit', $office) }}">አርም</a>
                 <form method="post" action="{{ route('admin.offices.deactivate', $office) }}">
                     @csrf
+                    @if ($office->is_active && $recordCount > 0)
+                        <select class="form-select form-select-sm mb-2" name="transfer_to" required>
+                            <option value="">መዝገቡን የሚረከብ ጽህፈት ቤት</option>
+                            @foreach ($destinations as $destination)
+                                <option value="{{ $destination->id }}">{{ $destination->amharicName() }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                     <button class="btn btn-outline-danger" type="submit">{{ $office->is_active ? 'አጥፋ' : 'አብራ' }}</button>
                 </form>
             </div>

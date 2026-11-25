@@ -121,6 +121,28 @@ class ExpertController extends Controller
         return back()->with('status', $expert->is_active ? 'በድጋሚ በርቷል።' : 'ጠፍቷል። ጉዳዮቹ ከነበሩ ተዘዋውረዋል።');
     }
 
+    public function resetPassword(Request $request, User $user): RedirectResponse
+    {
+        $expert = $this->find($user);
+        abort_if($expert->is(auth()->user()), 403, 'የራስዎን የይለፍ ቃል ከዚህ አይቀይሩ።');
+
+        $data = $request->validate([
+            'password' => ['required', 'string', 'confirmed', Password::min(8)],
+        ], [
+            'required' => ':attribute ያስፈልጋል።',
+            'confirmed' => 'የይለፍ ቃሉ አልተመሳሰለም።',
+            'min' => ':attribute ቢያንስ :min ፊደል ይሁን።',
+        ], [
+            'password' => 'አዲስ የይለፍ ቃል',
+        ]);
+
+        $expert->password = $data['password'];
+        $expert->save();
+        AuditLogger::record($request->user(), $expert, 'password', 'የይለፍ ቃል ለባለሙያ ተቀይሯል።');
+
+        return back()->with('status', 'የይለፍ ቃሉ ተቀይሯል።');
+    }
+
     private function find(User $user): User
     {
         abort_unless(in_array((int) $user->organization_id, OrganizationScope::ids(), true), 404);

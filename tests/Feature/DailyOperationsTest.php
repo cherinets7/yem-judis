@@ -7,7 +7,7 @@ use App\Models\Organization;
 use App\Models\StaffProfile;
 use App\Models\User;
 use App\Models\WorkUnit;
-use App\Notifications\PerformanceSubmitted;
+use App\Notifications\ReportSubmitted;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -202,7 +202,7 @@ class DailyOperationsTest extends TestCase
         $this->assertSame(0, $office->fresh()->unreadNotifications()->count());
 
         $note = $head->notifications()->firstOrFail();
-        $this->assertSame(PerformanceSubmitted::class, $note->type);
+        $this->assertSame(ReportSubmitted::class, $note->type);
 
         $this->actingAs($head)
             ->get(route('notifications.index'))

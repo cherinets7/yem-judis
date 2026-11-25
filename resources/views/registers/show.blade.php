@@ -32,8 +32,8 @@
 
     @if ($definition['documents'] ?? false)
         <section class="page-card p-3 p-lg-4 mb-4">
-            <h2 class="h6">የጉዳይ ፋይሎች</h2>
-            <p class="meta">የፍርድ ቤት ውሳኔ፣ ማስረጃ ወይም ደብዳቤ ያያይዙ።</p>
+            <h2 class="h6">የተያያዙ ፋይሎች</h2>
+            <p class="meta">PDF፣ ምስል ወይም ዎርድ እስከ 10 ሜጋ ያያይዙ።</p>
             @forelse ($record->documents as $document)
                 <div class="d-flex flex-wrap justify-content-between gap-2 border-bottom py-2">
                     <div>

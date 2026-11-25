@@ -19,6 +19,8 @@ class CriminalAppeal extends Model
     protected $fillable = [
         'organization_id',
         'expert_id',
+        'appointment_date_ec',
+        'appointment_reason',
         'prosecutor_appeal_number',
         'lower_court_file_number',
         'appellant_name',

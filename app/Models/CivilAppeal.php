@@ -19,6 +19,8 @@ class CivilAppeal extends Model
     protected $fillable = [
         'organization_id',
         'expert_id',
+        'appointment_date_ec',
+        'appointment_reason',
         'appellant_type',
         'appellant_address',
         'respondent_address',

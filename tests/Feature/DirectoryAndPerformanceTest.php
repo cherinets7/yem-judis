@@ -175,7 +175,7 @@ class DirectoryAndPerformanceTest extends TestCase
         $this->actingAs($head)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('ለማጽደቅ የቀረበ አፈጻጸም')
+            ->assertSee('ለማጽደቅ የቀረቡ ሪፖርቶች')
             ->assertSee($legal->displayName())
             ->assertSee('ወራዊ');
 

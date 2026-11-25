@@ -7,6 +7,7 @@ use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\PdfExportController;
 use App\Http\Controllers\PerformanceReportController;
 use App\Http\Controllers\ProsecutorWeeklyReportController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WorkUnitController;
 use App\Support\RegisterCatalog;
 use Illuminate\Support\Facades\Route;
@@ -78,6 +79,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('experts/{user}/edit', [ExpertController::class, 'edit'])->name('experts.edit');
         Route::put('experts/{user}', [ExpertController::class, 'update'])->name('experts.update');
         Route::post('experts/{user}/deactivate', [ExpertController::class, 'deactivate'])->name('experts.deactivate');
+        Route::post('experts/{user}/password', [ExpertController::class, 'resetPassword'])->name('experts.password');
+    });
+
+    Route::middleware('role:legal')->group(function () {
+        Route::get('search', [SearchController::class, 'index'])->name('search');
     });
 
     Route::middleware('role:performance')->group(function () {

@@ -15,6 +15,7 @@ use App\Support\OrganizationScope;
 use App\Support\PublicCaseProjector;
 use App\Support\RegisterCatalog;
 use App\Support\Roles;
+use App\Support\SubmissionAlerts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
@@ -56,6 +57,7 @@ abstract class RegisterResourceController extends Controller
         $record = $definition['model']::query()->create($data);
         $this->project($definition, $record);
         AuditLogger::record($request->user(), $record, 'created', $definition['title'].' ተመዝግቧል።');
+        $this->alertSubmitted($definition, $record);
 
         return redirect()
             ->route($this->routeName('index'))
@@ -102,6 +104,7 @@ abstract class RegisterResourceController extends Controller
             AuditLogger::plain($record->getChanges()),
         );
         $this->project($definition, $record);
+        $this->alertSubmitted($definition, $record);
 
         return redirect()
             ->route($this->routeName('edit'), $record)
@@ -692,6 +695,29 @@ abstract class RegisterResourceController extends Controller
         AuditLogger::record($request->user(), $record, $status->value, $definition['title'].'፡ '.$message);
 
         return back()->with('status', $message);
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    private function alertSubmitted(array $definition, Model $record): void
+    {
+        if (! ($definition['review'] ?? false)) {
+            return;
+        }
+
+        if (method_exists($record, 'user')) {
+            $record->loadMissing('user');
+        }
+
+        $name = method_exists($record, 'user') ? $record->user?->displayName() : null;
+
+        SubmissionAlerts::notify(
+            $record,
+            ($name ?: $definition['title']).' '.$definition['title'].' አቅርቧል',
+            $definition['title'],
+            route($this->routeName('show'), $record, false),
+        );
     }
 
     private function document(Model $record, int $document): RegisterDocument

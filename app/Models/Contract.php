@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Enums\Gender;
+use App\Models\Concerns\HasRegisterDocuments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Contract registration register. Code 010. */
 class Contract extends Model
 {
+    use HasRegisterDocuments;
+
     protected $fillable = [
         'organization_id',
         'giver_name',

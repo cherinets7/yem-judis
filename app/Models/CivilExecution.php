@@ -19,6 +19,8 @@ class CivilExecution extends Model
     protected $fillable = [
         'organization_id',
         'expert_id',
+        'appointment_date_ec',
+        'appointment_reason',
         'execution_plaintiff',
         'plaintiff_address',
         'execution_defendant',

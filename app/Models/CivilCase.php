@@ -33,6 +33,8 @@ class CivilCase extends Model
         'claim_money_amount',
         'claim_land_size',
         'assigned_prosecutor',
+        'appointment_date_ec',
+        'appointment_reason',
         'court_file_number',
         'decision_date_and_type',
         'case_age',

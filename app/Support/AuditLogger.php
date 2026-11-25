@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\AuditLog;
+use App\Models\Organization;
 use App\Models\User;
 use BackedEnum;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,8 @@ class AuditLogger
     {
         return AuditLog::query()->create([
             'user_id' => $user?->id,
-            'organization_id' => $subject?->getAttribute('organization_id'),
+            'organization_id' => $subject?->getAttribute('organization_id')
+                ?? ($subject instanceof Organization ? $subject->id : null),
             'auditable_type' => $subject ? $subject::class : null,
             'auditable_id' => $subject?->getKey(),
             'action' => $action,

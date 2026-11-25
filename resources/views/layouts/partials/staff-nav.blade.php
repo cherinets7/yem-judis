@@ -10,6 +10,10 @@
 
     <a class="staff-link @if(request()->routeIs('woredas')) is-active @endif" href="{{ route('woredas') }}" @if(request()->routeIs('woredas')) aria-current="page" @endif>ወረዳዎች</a>
 
+    @if (\App\Support\Roles::allows($user, 'legal'))
+        <a class="staff-link @if(request()->routeIs('admin.search')) is-active @endif" href="{{ route('admin.search') }}" @if(request()->routeIs('admin.search')) aria-current="page" @endif>መዝገብ ፍለጋ</a>
+    @endif
+
     @foreach (\App\Support\RegisterCatalog::sections() as $section)
         @continue(! \App\Support\Roles::allows($user, $section['roles']))
         @if (count($section['keys']) === 1)

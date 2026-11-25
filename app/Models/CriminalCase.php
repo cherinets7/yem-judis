@@ -39,6 +39,8 @@ class CriminalCase extends Model
         'case_age',
         'assigned_prosecutor',
         'witnesses_count_and_gender',
+        'appointment_date_ec',
+        'appointment_reason',
         'created_by',
     ];
 

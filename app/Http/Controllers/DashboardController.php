@@ -16,6 +16,7 @@ use App\Models\StrategicFocusData;
 use App\Models\WeeklyReport;
 use App\Support\OrganizationScope;
 use App\Support\Roles;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -113,6 +114,7 @@ class DashboardController extends Controller
             'performanceReviewer' => $reviewer,
             'queues' => $queues,
             'waitingTotal' => array_sum(array_column($queues, 'count')),
+            'waitingItems' => $this->waitingItems($ids, $reviewer),
         ]);
     }
 
@@ -142,6 +144,71 @@ class DashboardController extends Controller
         return view('dashboard.woredas', [
             'offices' => $offices,
         ]);
+    }
+
+    /**
+     * @param  list<int>  $ids
+     * @return Collection<int, array{label: string, title: string, url: string, meta: string}>
+     */
+    private function waitingItems(array $ids, bool $reviewer): Collection
+    {
+        if (! $reviewer) {
+            return collect();
+        }
+
+        $items = collect();
+
+        foreach (PerformanceReport::query()->with('user')->whereIn('organization_id', $ids)->where('status', ReviewStatus::Submitted)->latest('submitted_at')->limit(8)->get() as $row) {
+            $items->push([
+                'label' => 'አፈጻጸም',
+                'title' => $row->user?->displayName() ?: 'ባለሙያ',
+                'url' => route('admin.performance.show', $row),
+                'meta' => $row->period->label().' '.$row->period_number.' · '.$row->budget_year_ec,
+                'at' => $row->submitted_at?->getTimestamp() ?? $row->updated_at?->getTimestamp() ?? 0,
+            ]);
+        }
+
+        foreach (WeeklyReport::query()->with('user')->whereIn('organization_id', $ids)->where('status', ReviewStatus::Submitted)->latest()->limit(8)->get() as $row) {
+            $items->push([
+                'label' => 'ሳምንታዊ',
+                'title' => $row->user?->displayName() ?: 'ሳምንታዊ ሪፖርት',
+                'url' => route('admin.weekly-reports.show', $row),
+                'meta' => 'ሳምንት '.$row->week_number.' · '.$row->budget_year_ec,
+                'at' => $row->updated_at?->getTimestamp() ?? 0,
+            ]);
+        }
+
+        foreach (ProsecutorWeeklyReport::query()->with('user')->whereIn('organization_id', $ids)->where('status', ReviewStatus::Submitted)->latest()->limit(8)->get() as $row) {
+            $items->push([
+                'label' => 'ዐቃቤ ህግ ሳምንታዊ',
+                'title' => $row->user?->displayName() ?: 'ዐቃቤ ህግ',
+                'url' => route('admin.prosecutor-weekly.edit', $row),
+                'meta' => $row->report_type->label().' · ሳምንት '.$row->week_number,
+                'at' => $row->updated_at?->getTimestamp() ?? 0,
+            ]);
+        }
+
+        foreach (AnnualPlan::query()->with('user')->whereIn('organization_id', $ids)->where('status', ReviewStatus::Submitted)->latest()->limit(8)->get() as $row) {
+            $items->push([
+                'label' => 'ዓመታዊ',
+                'title' => $row->title,
+                'url' => route('admin.annual-plans.show', $row),
+                'meta' => (string) $row->budget_year_ec,
+                'at' => $row->updated_at?->getTimestamp() ?? 0,
+            ]);
+        }
+
+        foreach (StrategicFocusData::query()->with('user')->whereIn('organization_id', $ids)->where('status', ReviewStatus::Submitted)->latest()->limit(8)->get() as $row) {
+            $items->push([
+                'label' => 'ስትራቴጂክ',
+                'title' => $row->focus_area,
+                'url' => route('admin.strategic-focus.show', $row),
+                'meta' => $row->quarter->label().' · '.$row->budget_year_ec,
+                'at' => $row->updated_at?->getTimestamp() ?? 0,
+            ]);
+        }
+
+        return $items->sortByDesc('at')->take(8)->values();
     }
 
     /**

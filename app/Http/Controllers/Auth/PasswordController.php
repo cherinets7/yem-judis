@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Support\AuditLogger;
+use App\Support\PasswordAlerts;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,7 +70,13 @@ class PasswordController extends Controller
 
         Password::sendResetLink($request->only('email'));
 
-        return back()->with('status', 'መለያው ካለ የመቀየሪያ አገናኝ ወደ ኢሜይሉ ይላካል።');
+        $account = User::query()->where('email', $request->string('email')->toString())->first();
+
+        if ($account !== null) {
+            PasswordAlerts::notify($account);
+        }
+
+        return back()->with('status', 'መለያው ካለ የመቀየሪያ አገናኝ ወደ ኢሜይሉ ይላካል። ኢሜይሉ ካልደረሰ ኃላፊው ከባለሙያው ገጽ ሊቀይረው ይችላል።');
     }
 
     public function resetForm(string $token): View

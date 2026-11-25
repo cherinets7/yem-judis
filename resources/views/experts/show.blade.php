@@ -53,6 +53,23 @@
                 </ul>
             </section>
         </div>
+        @unless ($expert->is(auth()->user()))
+            <div class="col-lg-6">
+                <section class="page-card p-3 h-100">
+                    <h2 class="h6">የይለፍ ቃል ቀይር</h2>
+                    <p class="meta">ኢሜይሉ ካልደረሰ ኃላፊ ወይም የሰው ሀብት ከዚህ ይቀይራል።</p>
+                    <form method="post" action="{{ route('admin.experts.password', $expert) }}">
+                        @csrf
+                        <label class="form-label" for="password">አዲስ የይለፍ ቃል</label>
+                        <input class="form-control mb-2 @error('password') is-invalid @enderror" id="password" name="password" type="password" required>
+                        @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label class="form-label" for="password_confirmation">አዲሱን ድገም</label>
+                        <input class="form-control mb-2" id="password_confirmation" name="password_confirmation" type="password" required>
+                        <button class="btn btn-success" type="submit">ቀይር</button>
+                    </form>
+                </section>
+            </div>
+        @endunless
         <div class="col-lg-6">
             <section class="page-card p-3 h-100">
                 <h2 class="h6">አፈጻጸም</h2>

@@ -6,6 +6,8 @@ use App\Enums\OrganizationType;
 use App\Enums\UserRole;
 use App\Models\Organization;
 use App\Models\WorkUnit;
+use App\Support\AuditLogger;
+use App\Support\OfficeTransfer;
 use App\Support\OrganizationScope;
 use App\Support\Roles;
 use Illuminate\Database\Eloquent\Collection;
@@ -59,6 +61,13 @@ class OfficeController extends Controller
 
         return view('offices.show', [
             'office' => $office,
+            'recordCount' => OfficeTransfer::count($office),
+            'destinations' => Organization::query()
+                ->whereIn('id', OrganizationScope::ids())
+                ->where('is_active', true)
+                ->whereKeyNot($office->id)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -83,13 +92,47 @@ class OfficeController extends Controller
             ->with('status', 'ተዘምኗል።');
     }
 
-    public function deactivate(Organization $organization): RedirectResponse
+    public function deactivate(Request $request, Organization $organization): RedirectResponse
     {
         $office = $this->find($organization);
+
+        if ($office->is_active && OfficeTransfer::count($office) > 0) {
+            $destination = $this->destination($request, $office);
+            OfficeTransfer::move($office, $destination);
+            AuditLogger::record($request->user(), $office, 'updated', 'መዝገቦች ወደ '.$destination->amharicName().' ተዘዋውረዋል።');
+        }
+
         $office->is_active = ! $office->is_active;
         $office->save();
+        AuditLogger::record($request->user(), $office, 'updated', $office->is_active ? 'ጽህፈት ቤት በርቷል።' : 'ጽህፈት ቤት ጠፍቷል።');
 
-        return back()->with('status', $office->is_active ? 'በድጋሚ በርቷል።' : 'ጠፍቷል።');
+        return back()->with('status', $office->is_active ? 'በድጋሚ በርቷል።' : 'ጠፍቷል። መዝገቦቹ ከነበሩ ተዘዋውረዋል።');
+    }
+
+    private function destination(Request $request, Organization $office): Organization
+    {
+        $data = $request->validate([
+            'transfer_to' => ['required', 'integer'],
+        ], [
+            'required' => 'መዝገቡን የሚረከብ ጽህፈት ቤት ይምረጡ።',
+        ], [
+            'transfer_to' => 'ተረካቢ',
+        ]);
+
+        $destination = Organization::query()
+            ->whereKey($data['transfer_to'])
+            ->whereIn('id', OrganizationScope::ids())
+            ->where('is_active', true)
+            ->whereKeyNot($office->id)
+            ->first();
+
+        if ($destination === null) {
+            throw ValidationException::withMessages([
+                'transfer_to' => 'ተረካቢው ጽህፈት ቤት አልተገኘም።',
+            ]);
+        }
+
+        return $destination;
     }
 
     private function find(Organization $organization): Organization

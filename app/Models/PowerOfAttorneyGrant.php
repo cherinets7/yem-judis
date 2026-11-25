@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Enums\Gender;
+use App\Models\Concerns\HasRegisterDocuments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Power of attorney grant register. Code 008. */
 class PowerOfAttorneyGrant extends Model
 {
+    use HasRegisterDocuments;
+
     protected $fillable = [
         'organization_id',
         'grantor_name',

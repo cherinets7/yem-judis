@@ -49,25 +49,39 @@
 
     <section class="page-card p-3 p-lg-4 mb-4">
         <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
-            <h2 class="h5 mb-0">{{ $performanceReviewer ? 'ለማጽደቅ የቀረበ አፈጻጸም' : 'የእኔ አፈጻጸም' }}</h2>
+            <h2 class="h5 mb-0">{{ $performanceReviewer ? 'ለማጽደቅ የቀረቡ ሪፖርቶች' : 'የእኔ አፈጻጸም' }}</h2>
             <a href="{{ route('admin.performance.index', $performanceReviewer ? ['status' => 'submitted'] : ['mine' => 1]) }}">ሁሉንም ይመልከቱ</a>
         </div>
-        @forelse ($performance as $report)
-            <article class="d-flex flex-wrap justify-content-between gap-2 border-bottom py-2">
-                <div>
-                    <a href="{{ route('admin.performance.show', $report) }}">{{ $report->user?->displayName() }}</a>
-                    <div class="meta">
-                        {{ $report->organization?->amharicName() }}
-                        · {{ $report->period->label() }}
-                        · {{ $report->budget_year_ec }}
-                        · {{ $report->period->numberLabel() }} {{ $report->period_number }}
+        @if ($performanceReviewer)
+            @forelse ($waitingItems as $item)
+                <article class="d-flex flex-wrap justify-content-between gap-2 border-bottom py-2">
+                    <div>
+                        <a href="{{ $item['url'] }}">{{ $item['title'] }}</a>
+                        <div class="meta">{{ $item['label'] }} · {{ $item['meta'] }}</div>
                     </div>
-                </div>
-                <span class="meta">{{ $report->status->label() }}</span>
-            </article>
-        @empty
-            <div class="empty-state mb-0">{{ $performanceReviewer ? 'ለማጽደቅ የቀረበ አፈጻጸም የለም።' : 'እስካሁን ያቀረቡት አፈጻጸም የለም።' }}</div>
-        @endforelse
+                    <span class="meta">ቀርቧል</span>
+                </article>
+            @empty
+                <div class="empty-state mb-0">ለማጽደቅ የቀረበ ሪፖርት የለም።</div>
+            @endforelse
+        @else
+            @forelse ($performance as $report)
+                <article class="d-flex flex-wrap justify-content-between gap-2 border-bottom py-2">
+                    <div>
+                        <a href="{{ route('admin.performance.show', $report) }}">{{ $report->user?->displayName() }}</a>
+                        <div class="meta">
+                            {{ $report->organization?->amharicName() }}
+                            · {{ $report->period->label() }}
+                            · {{ $report->budget_year_ec }}
+                            · {{ $report->period->numberLabel() }} {{ $report->period_number }}
+                        </div>
+                    </div>
+                    <span class="meta">{{ $report->status->label() }}</span>
+                </article>
+            @empty
+                <div class="empty-state mb-0">እስካሁን ያቀረቡት አፈጻጸም የለም።</div>
+            @endforelse
+        @endif
     </section>
 
     <section class="page-card p-3 p-lg-4">
