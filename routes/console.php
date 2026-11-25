@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('justice:backup')->dailyAt('02:00');
 Schedule::command('queue:prune-failed --hours=168')->weekly();
+Schedule::command('justice:ops-check')->weeklyOn(1, '03:00');
