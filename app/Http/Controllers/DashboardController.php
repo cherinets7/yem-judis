@@ -15,6 +15,7 @@ use App\Models\StaffProfile;
 use App\Models\StrategicFocusData;
 use App\Models\WeeklyReport;
 use App\Support\OrganizationScope;
+use App\Support\RoleDashboard;
 use App\Support\Roles;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -80,6 +81,7 @@ class DashboardController extends Controller
 
         $user = auth()->user();
         $reviewer = Roles::allows($user, 'reviewers');
+        $roleDash = RoleDashboard::for($user, $ids);
         $queues = [
             ['label' => 'አፈጻጸም', 'count' => $this->submitted(PerformanceReport::class, $ids)],
             ['label' => 'ሳምንታዊ', 'count' => $this->submitted(WeeklyReport::class, $ids)],
@@ -89,21 +91,13 @@ class DashboardController extends Controller
         ];
         $performance = PerformanceReport::query()
             ->with(['user', 'organization'])
-            ->when(
-                $reviewer,
-                fn ($query) => $query
-                    ->whereIn('organization_id', $ids)
-                    ->where('status', ReviewStatus::Submitted),
-            )
-            ->when(
-                ! $reviewer,
-                fn ($query) => $query->where('user_id', $user?->id),
-            )
+            ->where('user_id', $user?->id)
             ->latest('submitted_at')
             ->limit(5)
             ->get();
 
         return view('dashboard.index', [
+            'roleDash' => $roleDash,
             'prosecutors' => $prosecutors,
             'servants' => $servants,
             'combined' => $prosecutors + $servants,

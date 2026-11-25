@@ -67,16 +67,14 @@ class StaffWorkspaceTest extends TestCase
 
         $this->actingAs($office)->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('ዐቃቤ ህጎች')
-            ->assertSee('ፐብሊክ ሰርቫንት')
-            ->assertSee('የሁለቱ ድምር')
-            ->assertSee('ጠቅላላ ህጎች')
+            ->assertSee('የጽህፈት ቤት ኃላፊ ዳሽቦርድ')
+            ->assertSee('ለማጽደቅ የቀረቡ ሪፖርቶች')
             ->assertSee('የሳጃ')
             ->assertSee('ጸድቋል')
             ->assertSee('ዐቃቤ ህግ ሳምንታዊ')
             ->assertDontSee('አልቀረበም')
             ->assertDontSee('የፎፋ')
-            ->assertDontSee('ዞን ማዕከል');
+            ->assertDontSee('የዞን ኃላፊ ዳሽቦርድ');
 
         $this->actingAs($office)->get(route('admin.staff-profiles.index'))
             ->assertOk()
@@ -92,6 +90,7 @@ class StaffWorkspaceTest extends TestCase
 
         $this->actingAs($zone)->get(route('dashboard'))
             ->assertOk()
+            ->assertSee('የዞን ኃላፊ ዳሽቦርድ')
             ->assertSee('የፎፋ')
             ->assertSee('የሳጃ')
             ->assertSee('የየም ዞን')
