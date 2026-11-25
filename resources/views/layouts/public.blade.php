@@ -502,13 +502,22 @@
                             <a class="nav-link @if(request()->routeIs('home')) active @endif" href="{{ route('home') }}">መነሻ</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @if(request()->routeIs('cases.tracking')) active @endif" href="{{ route('cases.tracking') }}">የጉዳዮች አስተዳደር</a>
+                            <a class="nav-link @if(request()->routeIs('about')) active @endif" href="{{ route('about') }}">ስለ እኛ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @if(request()->routeIs('services')) active @endif" href="{{ route('services') }}">አገልግሎቶች</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @if(request()->routeIs('cases.tracking')) active @endif" href="{{ route('cases.tracking') }}">ጉዳይ መከታተያ</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @if(request()->routeIs('laws.*')) active @endif" href="{{ route('laws.index') }}">ህጎች</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @if(request()->routeIs('community.*')) active @endif" href="{{ route('community.index') }}">ሌሎች</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @if(request()->routeIs('contacts')) active @endif" href="{{ route('contacts') }}">አድራሻ</a>
                         </li>
                         <li class="nav-item">
                             @auth

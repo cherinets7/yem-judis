@@ -113,11 +113,11 @@ class ProsecutorWeeklyExportTest extends TestCase
         $excel->assertOk();
         $excel->assertDownload('prosecutor-weekly-'.$report->id.'.xlsx');
 
-        $this->actingAs($legal)->get(route('admin.exports.pdf', 'laws'))->assertNotFound();
+        $this->actingAs($legal)->get(route('admin.exports.pdf', 'laws'))->assertOk();
         $this->actingAs($legal)->get(route('admin.exports.pdf', 'staff-profiles'))->assertForbidden();
         $this->actingAs($hr)->get(route('admin.staff-profiles.index'))->assertSee('PDF ወርድ')->assertSee('ኤክሴል ወርድ');
         $this->actingAs($legal)->get(route('admin.criminal-cases.index'))->assertSee('PDF ወርድ');
-        $this->actingAs($planner)->get(route('admin.annual-plans.index'))->assertDontSee('PDF ወርድ');
+        $this->actingAs($planner)->get(route('admin.annual-plans.index'))->assertSee('PDF ወርድ');
 
         $staffPdf = $this->actingAs($hr)->get(route('admin.exports.pdf', 'staff-profiles'));
         $staffPdf->assertOk();

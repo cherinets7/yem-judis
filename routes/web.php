@@ -11,6 +11,9 @@ use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicPortalController::class, 'home'])->name('home');
+Route::get('/about', [PublicPortalController::class, 'about'])->name('about');
+Route::get('/services', [PublicPortalController::class, 'services'])->name('services');
+Route::get('/contacts', [PublicPortalController::class, 'contacts'])->name('contacts');
 Route::get('/cases-tracking', [PublicPortalController::class, 'cases'])->name('cases.tracking');
 Route::get('/laws', [PublicPortalController::class, 'laws'])->name('laws.index');
 Route::get('/laws/{law}/download', [PublicPortalController::class, 'downloadLaw'])->name('laws.download');

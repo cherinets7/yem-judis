@@ -88,13 +88,17 @@ abstract class RegisterResourceController extends Controller
 
     public function edit(Request $request): View
     {
-        return view('registers.edit', $this->formData($this->find($request)));
+        $record = $this->find($request);
+        abort_unless($this->isEditable($this->definition(), $record), 403, 'ይህ መዝገብ ተቆልፏል።');
+
+        return view('registers.edit', $this->formData($record));
     }
 
     public function update(Request $request): RedirectResponse
     {
         $definition = $this->definition();
         $record = $this->find($request);
+        abort_unless($this->isEditable($definition, $record), 403, 'ይህ መዝገብ ተቆልፏል።');
         $record->update($this->validated($request, $definition, $record));
         AuditLogger::record(
             $request->user(),
@@ -115,6 +119,7 @@ abstract class RegisterResourceController extends Controller
     {
         $definition = $this->definition();
         $record = $this->find($request);
+        abort_unless($this->isEditable($definition, $record), 403, 'ይህ መዝገብ ተቆልፏል።');
         AuditLogger::record($request->user(), $record, 'deleted', $definition['title'].' ተሰርዟል።');
         $this->project($definition, $record, true);
         $record->delete();
@@ -682,6 +687,11 @@ abstract class RegisterResourceController extends Controller
         }
 
         $record = $this->find($request);
+        abort_unless(
+            $record->status === ReviewStatus::Submitted,
+            403,
+            'ለማጽደቅ ወይም ለመቀበል መዝገቡ ቀርቦ መሆን አለበት።',
+        );
         $record->status = $status;
 
         if ($definition['reviewer']) {
@@ -701,9 +711,27 @@ abstract class RegisterResourceController extends Controller
     /**
      * @param  array<string, mixed>  $definition
      */
+    private function isEditable(array $definition, Model $record): bool
+    {
+        if (! ($definition['review'] ?? false)) {
+            return true;
+        }
+
+        $status = $record->getAttribute('status');
+
+        return in_array($status, [ReviewStatus::Draft, ReviewStatus::Rejected], true);
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
     private function alertSubmitted(array $definition, Model $record): void
     {
         if (! ($definition['review'] ?? false)) {
+            return;
+        }
+
+        if ($record->getAttribute('status') !== ReviewStatus::Submitted) {
             return;
         }
 

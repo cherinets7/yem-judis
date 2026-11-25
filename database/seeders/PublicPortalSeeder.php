@@ -121,6 +121,7 @@ class PublicPortalSeeder extends Seeder
                 'issued_year_ec' => $law['issued_year_ec'],
                 'description' => $law['description'],
                 'file_path' => $law['file'],
+                'is_published' => true,
                 'uploaded_by' => $authorId,
             ]);
         }

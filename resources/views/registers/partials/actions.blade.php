@@ -1,11 +1,16 @@
 @php
     use App\Enums\ReviewStatus;
+
+    $canEdit = ! $definition['review']
+        || in_array($record->status, [ReviewStatus::Draft, ReviewStatus::Rejected], true);
 @endphp
 <div class="d-flex flex-wrap gap-2">
     <a class="btn btn-sm btn-outline-success" href="{{ route('admin.'.$definition['uri'].'.show', $record) }}">ይመልከቱ</a>
-    <a class="btn btn-sm btn-outline-success" href="{{ route('admin.'.$definition['uri'].'.edit', $record) }}">አርም</a>
+    @if ($canEdit)
+        <a class="btn btn-sm btn-outline-success" href="{{ route('admin.'.$definition['uri'].'.edit', $record) }}">አርም</a>
+    @endif
 
-    @if ($canReview && $definition['review'] && $record->status !== ReviewStatus::Approved)
+    @if ($canReview && $definition['review'] && $record->status === ReviewStatus::Submitted)
         <form method="post" action="{{ route('admin.'.$definition['uri'].'.approve', $record) }}">
             @csrf
             @if ($definition['note'])
@@ -13,9 +18,6 @@
             @endif
             <button class="btn btn-sm btn-success" type="submit">አጽድቅ</button>
         </form>
-    @endif
-
-    @if ($canReview && $definition['review'] && $record->status !== ReviewStatus::Rejected)
         <form method="post" action="{{ route('admin.'.$definition['uri'].'.reject', $record) }}">
             @csrf
             <button class="btn btn-sm btn-outline-danger" type="submit">አትቀበል</button>
@@ -30,9 +32,11 @@
         </form>
     @endif
 
-    <form method="post" action="{{ route('admin.'.$definition['uri'].'.destroy', $record) }}" onsubmit="return confirm('ይህ መዝገብ ይሰረዝ?');">
-        @csrf
-        @method('DELETE')
-        <button class="btn btn-sm btn-outline-danger" type="submit">ሰርዝ</button>
-    </form>
+    @if ($canEdit)
+        <form method="post" action="{{ route('admin.'.$definition['uri'].'.destroy', $record) }}" onsubmit="return confirm('ይህ መዝገብ ይሰረዝ?');">
+            @csrf
+            @method('DELETE')
+            <button class="btn btn-sm btn-outline-danger" type="submit">ሰርዝ</button>
+        </form>
+    @endif
 </div>

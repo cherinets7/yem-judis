@@ -136,8 +136,8 @@ class PublicCaseProjector
         return [
             'prosecutor_file_number' => $record->prosecutor_appeal_number,
             'court_file_number' => $record->appellate_court_file_number ?: $record->lower_court_file_number,
-            'plaintiff_name' => $record->appellant_type?->label(),
-            'defendant_name' => null,
+            'plaintiff_name' => $record->appellant_name ?: $record->appellant_type?->label(),
+            'defendant_name' => $record->respondent_name,
             'case_type' => PublicCaseType::CivilAppeal->value,
             'court_level' => CourtLevel::HighCourt->value,
             'final_outcome' => self::outcome(filled($record->appellate_decision_and_date)),

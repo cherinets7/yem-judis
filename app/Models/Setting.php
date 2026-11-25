@@ -13,6 +13,8 @@ class Setting extends Model
         'phone',
         'email',
         'footer_note',
+        'about_text',
+        'services_text',
         'updated_by',
     ];
 
@@ -35,6 +37,8 @@ class Setting extends Model
             'phone' => null,
             'email' => null,
             'footer_note' => 'የህዝብ መረጃ በር ብቻ። የጉዳይ ዝርዝር የሚታየው ከታተመ በኋላ ነው።',
+            'about_text' => 'የየም ዞን ፍትህ መምሪያ ለዜጎች የፍትህ አገልግሎት፣ የጉዳይ ክትትል፣ የህግ መረጃ እና የሰነድ ምዝገባ በዲጂታል መንገድ ያቀርባል።',
+            'services_text' => "የጉዳይ መከታተያ\nየህግ ማውጫና ማውረድ\nየህዝብ አስተያየትና ማስታወቂያ\nየውክልናና የውል ምዝገባ (ለሰራተኛ)\nየዕቅድና አፈጻጸም ሪፖርት (ለሰራተኛ)",
         ]);
     }
 }
