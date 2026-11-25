@@ -29,26 +29,55 @@ class RegisterSearch
                 continue;
             }
 
-            $builder = $definition['model']::query();
+            $records = collect();
 
-            if ($definition['scoped']) {
-                $builder->with('organization');
-                $builder->where(function ($inner) use ($definition, $organizationIds): void {
-                    $inner->whereIn('organization_id', $organizationIds);
+            if (method_exists($definition['model'], 'search')) {
+                try {
+                    $records = $definition['model']::search($term)
+                        ->take(40)
+                        ->get()
+                        ->filter(function ($record) use ($definition, $organizationIds) {
+                            if (! $definition['scoped']) {
+                                return true;
+                            }
 
-                    if ($definition['nullable_org']) {
-                        $inner->orWhereNull('organization_id');
-                    }
-                });
+                            $organizationId = $record->getAttribute('organization_id');
+
+                            if ($organizationId === null) {
+                                return (bool) ($definition['nullable_org'] ?? false);
+                            }
+
+                            return in_array((int) $organizationId, $organizationIds, true);
+                        })
+                        ->take(8)
+                        ->values();
+                } catch (\Throwable) {
+                    $records = collect();
+                }
             }
 
-            $builder->where(function ($inner) use ($columns, $like): void {
-                foreach ($columns as $column) {
-                    $inner->orWhere($column, 'like', $like);
-                }
-            });
+            if ($records->isEmpty()) {
+                $builder = $definition['model']::query();
 
-            $records = $builder->latest()->limit(8)->get();
+                if ($definition['scoped']) {
+                    $builder->with('organization');
+                    $builder->where(function ($inner) use ($definition, $organizationIds): void {
+                        $inner->whereIn('organization_id', $organizationIds);
+
+                        if ($definition['nullable_org']) {
+                            $inner->orWhereNull('organization_id');
+                        }
+                    });
+                }
+
+                $builder->where(function ($inner) use ($columns, $like): void {
+                    foreach ($columns as $column) {
+                        $inner->orWhere($column, 'like', $like);
+                    }
+                });
+
+                $records = $builder->latest()->limit(8)->get();
+            }
 
             if ($records->isEmpty()) {
                 continue;

@@ -3,6 +3,13 @@
 @section('title', 'ዳሽቦርድ')
 
 @section('content')
+    @if (\App\Support\TwoFactor::requiredFor(auth()->user()) && ! \App\Support\TwoFactor::enabled(auth()->user()))
+        <div class="alert alert-warning" role="status">
+            ለኃላፊ መለያ ሁለት ደረጃ ማረጋገጥ ይመከራል።
+            <a href="{{ route('two-factor.edit') }}">አሁን አብሩ</a>
+        </div>
+    @endif
+
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
             <article class="kpi-card">

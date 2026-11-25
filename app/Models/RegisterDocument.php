@@ -11,6 +11,7 @@ class RegisterDocument extends Model
     protected $fillable = [
         'title',
         'file_path',
+        'disk',
         'uploaded_by',
     ];
 

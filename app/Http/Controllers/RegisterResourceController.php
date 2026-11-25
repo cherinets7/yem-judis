@@ -11,6 +11,7 @@ use App\Models\RegisterDocument;
 use App\Models\User;
 use App\Models\WorkUnit;
 use App\Support\AuditLogger;
+use App\Support\DocumentDisk;
 use App\Support\OrganizationScope;
 use App\Support\PublicCaseProjector;
 use App\Support\RegisterCatalog;
@@ -20,7 +21,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -183,10 +183,11 @@ abstract class RegisterResourceController extends Controller
             'file' => 'ፋይል',
         ]);
 
-        $path = $request->file('file')->store('register-documents', 'local');
+        $stored = DocumentDisk::store($request->file('file'));
         $record->documents()->create([
             'title' => trim($data['title']),
-            'file_path' => $path,
+            'file_path' => $stored['file_path'],
+            'disk' => $stored['disk'],
             'uploaded_by' => $request->user()->id,
         ]);
         AuditLogger::record($request->user(), $record, 'document', 'ፋይል ተያይዟል፡ '.$data['title']);
@@ -197,7 +198,7 @@ abstract class RegisterResourceController extends Controller
     public function downloadDocument(Request $request, int $record, int $document): StreamedResponse
     {
         $file = $this->document($this->find($request), $document);
-        $disk = Storage::disk('local');
+        $disk = DocumentDisk::disk($file->disk ?: null);
         abort_unless($disk->exists($file->file_path), 404, 'ፋይሉ አልተገኘም።');
 
         return $disk->download($file->file_path, $file->downloadName());
@@ -207,7 +208,7 @@ abstract class RegisterResourceController extends Controller
     {
         $record = $this->find($request);
         $file = $this->document($record, $document);
-        Storage::disk('local')->delete($file->file_path);
+        DocumentDisk::disk($file->disk ?: null)->delete($file->file_path);
         $title = $file->title;
         $file->delete();
         AuditLogger::record($request->user(), $record, 'document', 'ፋይል ተወግዷል፡ '.$title);

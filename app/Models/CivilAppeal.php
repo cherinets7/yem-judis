@@ -6,6 +6,7 @@ use App\Enums\AppellantType;
 use App\Models\Concerns\HasAssignedExpert;
 use App\Models\Concerns\HasRegisterDocuments;
 use App\Models\Concerns\ProjectsToPublicCase;
+use App\Models\Concerns\SearchableRegister;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +16,7 @@ class CivilAppeal extends Model
     use HasAssignedExpert;
     use HasRegisterDocuments;
     use ProjectsToPublicCase;
+    use SearchableRegister;
 
     protected $fillable = [
         'organization_id',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -13,6 +14,25 @@ class NotificationController extends Controller
     {
         return view('notifications.index', [
             'notes' => $request->user()->notifications()->latest()->paginate(15),
+        ]);
+    }
+
+    public function poll(Request $request): JsonResponse
+    {
+        $latest = $request->user()
+            ->unreadNotifications()
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(fn (DatabaseNotification $note) => [
+                'id' => $note->id,
+                'title' => $note->data['title'] ?? 'መልዕክት',
+                'body' => $note->data['body'] ?? '',
+            ]);
+
+        return response()->json([
+            'unread' => $request->user()->unreadNotifications()->count(),
+            'latest' => $latest,
         ]);
     }
 

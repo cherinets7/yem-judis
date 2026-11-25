@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Gender;
 use App\Models\Concerns\HasRegisterDocuments;
+use App\Models\Concerns\SearchableRegister;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Contract extends Model
 {
     use HasRegisterDocuments;
+    use SearchableRegister;
 
     protected $fillable = [
         'organization_id',

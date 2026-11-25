@@ -4,9 +4,11 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PasswordResetRequested extends Notification
+class PasswordResetRequested extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,7 +19,15 @@ class PasswordResetRequested extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject($this->account->displayName().' የይለፍ ቃል ጠይቋል')
+            ->line('ከባለሙያው ገጽ የይለፍ ቃል መቀየር ይችላሉ።')
+            ->action('ባለሙያውን ክፈት', route('admin.experts.show', $this->account));
     }
 
     /**

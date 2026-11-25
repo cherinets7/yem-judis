@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\TwoFactor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,6 +62,16 @@ class LoginController extends Controller
         }
 
         RateLimiter::clear($key);
+
+        if (TwoFactor::enabled($request->user())) {
+            $request->session()->put([
+                'login.id' => $request->user()->id,
+                'login.remember' => $request->boolean('remember'),
+            ]);
+            Auth::logout();
+
+            return redirect()->route('two-factor.challenge');
+        }
 
         return redirect()->intended(route('dashboard'));
     }

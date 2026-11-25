@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Staff Document Disk
+    |--------------------------------------------------------------------------
+    |
+    | Register attachments use this disk. Set DOCUMENTS_DISK=s3 in production
+    | once AWS credentials are available; local remains the default for demos.
+    |
+    */
+
+    'documents' => env('DOCUMENTS_DISK', env('FILESYSTEM_DISK', 'local')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
