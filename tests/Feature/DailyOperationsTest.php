@@ -212,7 +212,7 @@ class DailyOperationsTest extends TestCase
         $this->actingAs($head)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('የሪፖርት ድምር');
+            ->assertSee('ለማጽደቅ የቀረቡ ሪፖርቶች');
 
         $report = $legal->performanceReports()->firstOrFail();
 
