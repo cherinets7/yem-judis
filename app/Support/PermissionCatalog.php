@@ -57,6 +57,18 @@ class PermissionCatalog
                 'label' => 'ፈቃድ ማስተካከል',
                 'defaults' => [],
             ],
+            'structure' => [
+                'label' => 'ዞን እና ወረዳ መመዝገብ',
+                'defaults' => [UserRole::ZoneHead->value],
+            ],
+            'experts' => [
+                'label' => 'ባለሙያ መመዝገብ',
+                'defaults' => [UserRole::ZoneHead->value, UserRole::HrExpert->value, UserRole::OfficeHead->value],
+            ],
+            'performance' => [
+                'label' => 'አፈጻጸም ለኃላፊ ማቅረብ',
+                'defaults' => Roles::list(Roles::ALL),
+            ],
         ];
     }
 

@@ -5,13 +5,17 @@ namespace App\Models;
 use App\Enums\CourtLevel;
 use App\Enums\FinalOutcome;
 use App\Enums\PublicCaseType;
+use App\Models\Concerns\HasAssignedExpert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PublicCaseTracking extends Model
 {
+    use HasAssignedExpert;
+
     protected $fillable = [
         'organization_id',
+        'expert_id',
         'prosecutor_file_number',
         'court_file_number',
         'plaintiff_name',

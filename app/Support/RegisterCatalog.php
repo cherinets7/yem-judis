@@ -260,7 +260,7 @@ class RegisterCatalog
             self::entry('case-tracking', 'የፐብሊክ ጉዳይ መከታተያ', 'የፐብሊክ ጉዳይ መከታተያ', PublicCaseTrackingController::class, PublicCaseTracking::class, [
                 'publish' => true,
                 'search' => ['prosecutor_file_number', 'court_file_number', 'plaintiff_name', 'defendant_name'],
-                'columns' => ['prosecutor_file_number', 'case_type', 'plaintiff_name', 'is_published'],
+                'columns' => ['prosecutor_file_number', 'case_type', 'plaintiff_name', 'expert_id', 'is_published'],
                 'fields' => [
                     self::f('prosecutor_file_number', 'የዐቃቤ ህግ መዝገብ ቁጥር', 'string', true),
                     self::f('court_file_number', 'የፍርድ ቤት መዝገብ ቁጥር', 'string'),
@@ -268,6 +268,7 @@ class RegisterCatalog
                     self::f('defendant_name', 'ተከሳሽ', 'string'),
                     self::f('case_type', 'የጉዳይ አይነት', 'enum', true, ['enum' => PublicCaseType::class]),
                     self::f('court_level', 'የፍርድ ቤት ደረጃ', 'enum', true, ['enum' => CourtLevel::class]),
+                    self::expert('expert_id', 'የተሳሰረ ባለሙያ'),
                     self::f('appointment_date_ec', 'የቀጠሮ ቀን', 'string'),
                     self::f('final_outcome', 'የመጨረሻ ውጤት', 'enum', true, [
                         'enum' => FinalOutcome::class,
@@ -279,8 +280,11 @@ class RegisterCatalog
             ]),
             self::entry('criminal-cases', 'የወንጀል ጉዳይ', '001/002 ወንጀል', CriminalCaseController::class, CriminalCase::class, [
                 'code' => '001–002',
+                'publish' => true,
+                'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_file_number', 'defendant_names', 'court_file_number', 'assigned_prosecutor'],
-                'columns' => ['prosecutor_file_number', 'court_level', 'defendant_names', 'assigned_prosecutor'],
+                'columns' => ['prosecutor_file_number', 'court_level', 'defendant_names', 'expert_id'],
                 'fields' => [
                     self::f('court_level', 'የፍርድ ቤት ደረጃ', 'enum', true, ['enum' => CourtLevel::class]),
                     self::f('prosecutor_file_number', 'የዐቃቤ ህግ መዝገብ ቁጥር', 'string', true),
@@ -295,6 +299,9 @@ class RegisterCatalog
                     self::f('court_decision_type', 'የውሳኔ አይነት', 'string'),
                     self::f('case_age', 'የጉዳዩ ዕድሜ', 'string'),
                     self::f('assigned_prosecutor', 'የተመደበ ዐቃቤ ህግ', 'string'),
+                    self::expert('expert_id', 'የተሳሰረ ባለሙያ'),
+                    self::f('appointment_date_ec', 'የቀጠሮ ቀን', 'string'),
+                    self::text('appointment_reason', 'የቀጠሮ ምክንያት'),
                     self::f('witnesses_count_and_gender', 'ምስክሮች ብዛትና ጾታ', 'string'),
                     self::flag('closed_indefinitely', 'ላልተወሰነ ጊዜ ተዘግቷል'),
                     self::text('defendant_names', 'የተከሳሾች ስም'),
@@ -305,8 +312,11 @@ class RegisterCatalog
             ]),
             self::entry('criminal-appeals', 'የወንጀል ይግባኝ', '003 ይግባኝ', CriminalAppealController::class, CriminalAppeal::class, [
                 'code' => '003',
+                'publish' => true,
+                'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_appeal_number', 'appellant_name', 'respondent_name', 'lower_court_file_number'],
-                'columns' => ['prosecutor_appeal_number', 'appellant_name', 'respondent_name', 'appeal_filed_date_ec'],
+                'columns' => ['prosecutor_appeal_number', 'appellant_name', 'respondent_name', 'expert_id'],
                 'fields' => [
                     self::f('prosecutor_appeal_number', 'የይግባኝ ቁጥር', 'string', true),
                     self::f('lower_court_file_number', 'የታችኛው ፍርድ ቤት መዝገብ', 'string'),
@@ -317,6 +327,9 @@ class RegisterCatalog
                     self::f('appeal_filed_date_ec', 'ይግባኝ የቀረበበት ቀን', 'string'),
                     self::f('appellate_court_and_file_no', 'የይግባኝ ፍርድ ቤትና መዝገብ', 'string'),
                     self::f('assigned_prosecutor', 'የተመደበ ዐቃቤ ህግ', 'string'),
+                    self::expert('expert_id', 'የተሳሰረ ባለሙያ'),
+                    self::f('appointment_date_ec', 'የቀጠሮ ቀን', 'string'),
+                    self::text('appointment_reason', 'የቀጠሮ ምክንያት'),
                     self::f('case_age', 'የጉዳዩ ዕድሜ', 'string'),
                     self::text('address', 'አድራሻ'),
                     self::text('lower_court_decision', 'የታችኛው ፍርድ ቤት ውሳኔ'),
@@ -325,8 +338,11 @@ class RegisterCatalog
             ]),
             self::entry('civil-cases', 'የፍትሐ ብሔር ጉዳይ', '004/005 ፍትሐ ብሔር', CivilCaseController::class, CivilCase::class, [
                 'code' => '004–005',
+                'publish' => true,
+                'project_public' => true,
+                'documents' => true,
                 'search' => ['plaintiff_name', 'defendant_name', 'prosecutor_case_number', 'court_file_number'],
-                'columns' => ['plaintiff_name', 'defendant_name', 'court_level', 'prosecutor_case_number'],
+                'columns' => ['plaintiff_name', 'defendant_name', 'court_level', 'expert_id'],
                 'fields' => [
                     self::f('court_level', 'የፍርድ ቤት ደረጃ', 'enum', true, ['enum' => CourtLevel::class]),
                     self::f('plaintiff_name', 'ከሳሽ', 'string', true),
@@ -338,6 +354,9 @@ class RegisterCatalog
                     self::money('claim_money_amount', 'የገንዘብ ክርክር'),
                     self::f('claim_land_size', 'የመሬት ስፋት', 'decimal', false, ['min' => 0, 'max' => 9999999999.9999]),
                     self::f('assigned_prosecutor', 'የተመደበ ዐቃቤ ህግ', 'string'),
+                    self::expert('expert_id', 'የተሳሰረ ባለሙያ'),
+                    self::f('appointment_date_ec', 'የቀጠሮ ቀን', 'string'),
+                    self::text('appointment_reason', 'የቀጠሮ ምክንያት'),
                     self::f('court_file_number', 'የፍርድ ቤት መዝገብ ቁጥር', 'string'),
                     self::f('case_age', 'የጉዳዩ ዕድሜ', 'string'),
                     self::count('witness_male', 'ወንድ ምስክር'),
@@ -351,8 +370,11 @@ class RegisterCatalog
             ]),
             self::entry('civil-appeals', 'የፍትሐ ብሔር ይግባኝ', '006 ይግባኝ', CivilAppealController::class, CivilAppeal::class, [
                 'code' => '006',
+                'publish' => true,
+                'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_appeal_number', 'appellant_address', 'respondent_address', 'lower_court_file_number'],
-                'columns' => ['prosecutor_appeal_number', 'appellant_type', 'appeal_filed_date_ec', 'appealed_court_name'],
+                'columns' => ['prosecutor_appeal_number', 'appellant_type', 'appeal_filed_date_ec', 'expert_id'],
                 'fields' => [
                     self::f('appellant_type', 'ይግባኝ ባይ', 'enum', true, ['enum' => AppellantType::class]),
                     self::f('prosecutor_appeal_number', 'የይግባኝ ቁጥር', 'string', true),
@@ -361,6 +383,9 @@ class RegisterCatalog
                     self::f('lower_court_file_number', 'የታችኛው ፍርድ ቤት መዝገብ', 'string'),
                     self::f('appealed_court_name', 'ይግባኝ የቀረበበት ፍርድ ቤት', 'string'),
                     self::f('appellate_court_file_number', 'የይግባኝ መዝገብ ቁጥር', 'string'),
+                    self::expert('expert_id', 'የተሳሰረ ባለሙያ'),
+                    self::f('appointment_date_ec', 'የቀጠሮ ቀን', 'string'),
+                    self::text('appointment_reason', 'የቀጠሮ ምክንያት'),
                     self::money('appeal_money_amount', 'የይግባኝ ገንዘብ'),
                     self::f('appeal_land_size', 'የይግባኝ መሬት ስፋት', 'decimal', false, ['min' => 0, 'max' => 9999999999.9999]),
                     self::f('case_age', 'የጉዳዩ ዕድሜ', 'string'),
@@ -371,8 +396,11 @@ class RegisterCatalog
             ]),
             self::entry('civil-executions', 'ፍርድ ትግበራ', '007 ትግበራ', CivilExecutionController::class, CivilExecution::class, [
                 'code' => '007',
+                'publish' => true,
+                'project_public' => true,
+                'documents' => true,
                 'search' => ['prosecutor_file_number', 'execution_plaintiff', 'execution_defendant', 'court_file_number'],
-                'columns' => ['prosecutor_file_number', 'execution_plaintiff', 'execution_defendant', 'executing_court'],
+                'columns' => ['prosecutor_file_number', 'execution_plaintiff', 'execution_defendant', 'expert_id'],
                 'fields' => [
                     self::f('prosecutor_file_number', 'የዐቃቤ ህግ መዝገብ ቁጥር', 'string', true),
                     self::f('execution_plaintiff', 'አፈጻጸም ጠያቂ', 'string'),
@@ -381,6 +409,9 @@ class RegisterCatalog
                     self::gender('gender', 'ጾታ'),
                     self::f('executing_court', 'አፈጻጸም የሚከታተለው ፍርድ ቤት', 'string'),
                     self::f('court_file_number', 'የፍርድ ቤት መዝገብ ቁጥር', 'string'),
+                    self::expert('expert_id', 'የተሳሰረ ባለሙያ'),
+                    self::f('appointment_date_ec', 'የቀጠሮ ቀን', 'string'),
+                    self::text('appointment_reason', 'የቀጠሮ ምክንያት'),
                     self::money('requested_money_amount', 'የተጠየቀ ገንዘብ'),
                     self::f('requested_land_size', 'የተጠየቀ መሬት', 'decimal', false, ['min' => 0, 'max' => 9999999999.9999]),
                     self::money('recovered_asset_amount', 'የተመለሰ ንብረት'),
@@ -392,6 +423,7 @@ class RegisterCatalog
             ]),
             self::entry('poa-grants', 'ውክልና', '008 ውክልና', PowerOfAttorneyGrantController::class, PowerOfAttorneyGrant::class, [
                 'code' => '008',
+                'documents' => true,
                 'search' => ['grantor_name', 'grantee_name', 'registration_number'],
                 'columns' => ['registration_number', 'grantor_name', 'grantee_name', 'granted_date_ec'],
                 'fields' => self::partyPair('grantor', 'ውክልና ሰጪ', 'grantee', 'ውክልና ተቀባይ', [
@@ -405,6 +437,7 @@ class RegisterCatalog
             ]),
             self::entry('poa-revocations', 'የውክልና ስረዛ', '009 ስረዛ', PowerOfAttorneyRevocationController::class, PowerOfAttorneyRevocation::class, [
                 'code' => '009',
+                'documents' => true,
                 'search' => ['revoker_name', 'revoked_from_name', 'revocation_reg_number', 'previous_poa_ref_and_date'],
                 'columns' => ['revocation_reg_number', 'revoker_name', 'revoked_from_name', 'revoked_date_ec'],
                 'fields' => self::partyPair('revoker', 'ሻሪ', 'revoked_from', 'የተሰረዘበት', [
@@ -418,6 +451,7 @@ class RegisterCatalog
             ]),
             self::entry('contracts', 'ውል', '010 ውል', ContractController::class, Contract::class, [
                 'code' => '010',
+                'documents' => true,
                 'search' => ['giver_name', 'receiver_name', 'registration_number', 'contract_summary'],
                 'columns' => ['registration_number', 'giver_name', 'receiver_name', 'registered_date_ec'],
                 'fields' => self::partyPair('giver', 'ውል ሰጪ', 'receiver', 'ውል ተቀባይ', [
@@ -430,6 +464,7 @@ class RegisterCatalog
             ]),
             self::entry('legal-studies', 'የህግ ጥናትና ስርጭት', '011 ጥናት', LegalStudyController::class, LegalStudiesDissemination::class, [
                 'code' => '011',
+                'documents' => true,
                 'search' => ['needs_assessment_topic'],
                 'columns' => ['budget_year_ec', 'needs_assessment_topic', 'manuals_prepared', 'drafted_laws_count'],
                 'fields' => array_merge([
@@ -439,6 +474,7 @@ class RegisterCatalog
             ]),
             self::entry('civic-associations', 'ሲቪክ ማኅበር', '012 ማኅበር', CivicAssociationController::class, CivicAssociation::class, [
                 'code' => '012',
+                'documents' => true,
                 'search' => ['association_name', 'registration_number', 'association_type'],
                 'columns' => ['association_name', 'association_type', 'registration_number', 'members_total'],
                 'fields' => [
@@ -459,6 +495,7 @@ class RegisterCatalog
             ]),
             self::entry('attorneys', 'ጠበቃ', '013 ጠበቃ', AttorneyController::class, Attorney::class, [
                 'code' => '013',
+                'documents' => true,
                 'search' => ['full_name', 'license_number', 'licensing_body'],
                 'columns' => ['full_name', 'license_number', 'service_year_ec', 'is_renewed_this_year'],
                 'fields' => [
@@ -482,6 +519,7 @@ class RegisterCatalog
             ]),
             self::entry('legal-secretaries', 'የህግ ጸሐፊ', '014 ጸሐፊ', LegalSecretaryController::class, LegalSecretary::class, [
                 'code' => '014',
+                'documents' => true,
                 'search' => ['full_name', 'license_number'],
                 'columns' => ['full_name', 'license_number', 'licensed_date_ec', 'clients_served_total'],
                 'fields' => [
@@ -531,6 +569,8 @@ class RegisterCatalog
             'reviewer' => false,
             'note' => false,
             'publish' => false,
+            'project_public' => false,
+            'documents' => false,
             'nullable_org' => false,
             'search' => [],
             'columns' => [],

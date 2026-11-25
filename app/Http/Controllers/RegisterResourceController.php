@@ -5,19 +5,25 @@ namespace App\Http\Controllers;
 use App\Enums\CourtLevel;
 use App\Enums\ReviewStatus;
 use App\Helpers\EthiopianDateHelper;
+use App\Models\AuditLog;
 use App\Models\Organization;
+use App\Models\RegisterDocument;
 use App\Models\User;
 use App\Models\WorkUnit;
+use App\Support\AuditLogger;
+use App\Support\DocumentDisk;
 use App\Support\OrganizationScope;
+use App\Support\PublicCaseProjector;
 use App\Support\RegisterCatalog;
 use App\Support\Roles;
+use App\Support\SubmissionAlerts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 abstract class RegisterResourceController extends Controller
 {
@@ -48,11 +54,36 @@ abstract class RegisterResourceController extends Controller
     {
         $definition = $this->definition();
         $data = $this->validated($request, $definition);
-        $definition['model']::query()->create($data);
+        $record = $definition['model']::query()->create($data);
+        $this->project($definition, $record);
+        AuditLogger::record($request->user(), $record, 'created', $definition['title'].' ተመዝግቧል።');
+        $this->alertSubmitted($definition, $record);
 
         return redirect()
             ->route($this->routeName('index'))
             ->with('status', 'ተመዝግቧል።');
+    }
+
+    public function show(Request $request): View
+    {
+        $definition = $this->definition();
+        $record = $this->find($request);
+        $record->loadMissing('organization');
+
+        if ($definition['documents'] ?? false) {
+            $record->load('documents.uploader');
+        }
+
+        return view('registers.show', $this->page([
+            'record' => $record,
+            'audits' => AuditLog::query()
+                ->with('user')
+                ->where('auditable_type', $record::class)
+                ->where('auditable_id', $record->getKey())
+                ->latest()
+                ->limit(12)
+                ->get(),
+        ]));
     }
 
     public function edit(Request $request): View
@@ -65,6 +96,15 @@ abstract class RegisterResourceController extends Controller
         $definition = $this->definition();
         $record = $this->find($request);
         $record->update($this->validated($request, $definition, $record));
+        AuditLogger::record(
+            $request->user(),
+            $record,
+            'updated',
+            $definition['title'].' ተዘምኗል።',
+            AuditLogger::plain($record->getChanges()),
+        );
+        $this->project($definition, $record);
+        $this->alertSubmitted($definition, $record);
 
         return redirect()
             ->route($this->routeName('edit'), $record)
@@ -73,7 +113,11 @@ abstract class RegisterResourceController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        $this->find($request)->delete();
+        $definition = $this->definition();
+        $record = $this->find($request);
+        AuditLogger::record($request->user(), $record, 'deleted', $definition['title'].' ተሰርዟል።');
+        $this->project($definition, $record, true);
+        $record->delete();
 
         return redirect()
             ->route($this->routeName('index'))
@@ -97,6 +141,18 @@ abstract class RegisterResourceController extends Controller
 
         $record = $this->find($request);
         $published = $request->boolean('is_published');
+
+        if ($definition['project_public'] ?? false) {
+            $tracking = PublicCaseProjector::sync($record);
+            abort_if($tracking === null, 404);
+            $tracking->is_published = $published;
+            $tracking->updated_by = $request->user()->id;
+            $tracking->save();
+            AuditLogger::record($request->user(), $record, $published ? 'published' : 'hidden', $published ? 'ለህዝብ ታትሟል።' : 'ከህዝብ ተደብቋል።');
+
+            return back()->with('status', $published ? 'ለህዝብ ታትሟል።' : 'ከህዝብ ተደብቋል።');
+        }
+
         $record->is_published = $published;
 
         if (in_array('updated_by', $record->getFillable(), true)) {
@@ -104,8 +160,60 @@ abstract class RegisterResourceController extends Controller
         }
 
         $record->save();
+        AuditLogger::record($request->user(), $record, $published ? 'published' : 'hidden', $published ? 'ለህዝብ ታትሟል።' : 'ከህዝብ ተደብቋል።');
 
         return back()->with('status', $published ? 'ለህዝብ ታትሟል።' : 'ከህዝብ ተደብቋል።');
+    }
+
+    public function storeDocument(Request $request): RedirectResponse
+    {
+        $definition = $this->definition();
+        abort_unless($definition['documents'] ?? false, 404);
+
+        $record = $this->find($request);
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:180'],
+            'file' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
+        ], [
+            'required' => ':attribute ያስፈልጋል።',
+            'mimes' => 'ፋይሉ PDF፣ ምስል ወይም ዎርድ ይሁን።',
+            'max' => 'ፋይሉ ከ10 ሜጋ በላይ ነው።',
+        ], [
+            'title' => 'የፋይል ርዕስ',
+            'file' => 'ፋይል',
+        ]);
+
+        $stored = DocumentDisk::store($request->file('file'));
+        $record->documents()->create([
+            'title' => trim($data['title']),
+            'file_path' => $stored['file_path'],
+            'disk' => $stored['disk'],
+            'uploaded_by' => $request->user()->id,
+        ]);
+        AuditLogger::record($request->user(), $record, 'document', 'ፋይል ተያይዟል፡ '.$data['title']);
+
+        return back()->with('status', 'ፋይሉ ተያይዟል።');
+    }
+
+    public function downloadDocument(Request $request, int $record, int $document): StreamedResponse
+    {
+        $file = $this->document($this->find($request), $document);
+        $disk = DocumentDisk::disk($file->disk ?: null);
+        abort_unless($disk->exists($file->file_path), 404, 'ፋይሉ አልተገኘም።');
+
+        return $disk->download($file->file_path, $file->downloadName());
+    }
+
+    public function destroyDocument(Request $request, int $record, int $document): RedirectResponse
+    {
+        $record = $this->find($request);
+        $file = $this->document($record, $document);
+        DocumentDisk::disk($file->disk ?: null)->delete($file->file_path);
+        $title = $file->title;
+        $file->delete();
+        AuditLogger::record($request->user(), $record, 'document', 'ፋይል ተወግዷል፡ '.$title);
+
+        return back()->with('status', 'ፋይሉ ተወግዷል።');
     }
 
     /**
@@ -114,6 +222,24 @@ abstract class RegisterResourceController extends Controller
     protected function definition(): array
     {
         return RegisterCatalog::get($this->register);
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    protected function project(array $definition, Model $record, bool $forget = false): void
+    {
+        if (! ($definition['project_public'] ?? false)) {
+            return;
+        }
+
+        if ($forget) {
+            PublicCaseProjector::forget($record);
+
+            return;
+        }
+
+        PublicCaseProjector::sync($record->fresh() ?? $record);
     }
 
     protected function find(Request $request): Model
@@ -135,8 +261,18 @@ abstract class RegisterResourceController extends Controller
             $query->with('organization');
         }
 
+        if ($definition['project_public'] ?? false) {
+            $query->with('publicTracking');
+        }
+
         if (method_exists($instance, 'workUnit')) {
             $query->with('workUnit');
+        }
+
+        foreach (['expert', 'filledByExpert', 'approvedByExpert', 'servedByExpert'] as $relation) {
+            if (method_exists($instance, $relation)) {
+                $query->with($relation);
+            }
         }
 
         if (! $definition['scoped']) {
@@ -557,8 +693,39 @@ abstract class RegisterResourceController extends Controller
         }
 
         $record->save();
+        AuditLogger::record($request->user(), $record, $status->value, $definition['title'].'፡ '.$message);
 
         return back()->with('status', $message);
+    }
+
+    /**
+     * @param  array<string, mixed>  $definition
+     */
+    private function alertSubmitted(array $definition, Model $record): void
+    {
+        if (! ($definition['review'] ?? false)) {
+            return;
+        }
+
+        if (method_exists($record, 'user')) {
+            $record->loadMissing('user');
+        }
+
+        $name = method_exists($record, 'user') ? $record->user?->displayName() : null;
+
+        SubmissionAlerts::notify(
+            $record,
+            ($name ?: $definition['title']).' '.$definition['title'].' አቅርቧል',
+            $definition['title'],
+            route($this->routeName('show'), $record, false),
+        );
+    }
+
+    private function document(Model $record, int $document): RegisterDocument
+    {
+        abort_unless(method_exists($record, 'documents'), 404);
+
+        return $record->documents()->whereKey($document)->firstOrFail();
     }
 
     /**
@@ -568,12 +735,46 @@ abstract class RegisterResourceController extends Controller
     protected function formData(?Model $record = null): array
     {
         $ids = OrganizationScope::ids();
+        $expertIds = User::query()
+            ->whereIn('organization_id', $ids)
+            ->where('is_active', true)
+            ->pluck('id');
+
+        if ($record !== null) {
+            foreach (['expert_id', 'filled_by_expert', 'approved_by_expert', 'served_by_expert'] as $column) {
+                $selected = $record->getAttribute($column);
+
+                if ($selected) {
+                    $expertIds->push($selected);
+                }
+            }
+        }
 
         return $this->page([
             'record' => $record,
-            'organizations' => Organization::query()->whereIn('id', $ids)->orderBy('name')->get(),
-            'workUnits' => WorkUnit::query()->whereIn('organization_id', $ids)->orderBy('name')->get(),
-            'experts' => User::query()->whereIn('organization_id', $ids)->where('is_active', true)->orderBy('name')->get(),
+            'organizations' => Organization::query()
+                ->whereIn('id', $ids)
+                ->where(function ($query) use ($record): void {
+                    $query->where('is_active', true);
+
+                    if ($record?->getAttribute('organization_id')) {
+                        $query->orWhere('id', $record->getAttribute('organization_id'));
+                    }
+                })
+                ->orderBy('name')
+                ->get(),
+            'workUnits' => WorkUnit::query()
+                ->whereIn('organization_id', $ids)
+                ->where(function ($query) use ($record): void {
+                    $query->where('is_active', true);
+
+                    if ($record?->getAttribute('work_unit_id')) {
+                        $query->orWhere('id', $record->getAttribute('work_unit_id'));
+                    }
+                })
+                ->orderBy('name')
+                ->get(),
+            'experts' => User::query()->whereIn('id', $expertIds->unique()->all())->orderBy('name')->get(),
             'budgetYear' => EthiopianDateHelper::currentBudgetYear(),
         ]);
     }

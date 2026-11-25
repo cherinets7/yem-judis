@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasRegisterDocuments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Civic association register. Code 012. */
 class CivicAssociation extends Model
 {
+    use HasRegisterDocuments;
+
     protected $fillable = [
         'organization_id',
         'association_name',

@@ -10,6 +10,7 @@ use App\Models\ProsecutorWeeklyReport;
 use App\Support\OrganizationScope;
 use App\Support\ProsecutorWeeklyMatrix;
 use App\Support\Roles;
+use App\Support\SubmissionAlerts;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,13 +51,16 @@ class ProsecutorWeeklyReportController extends Controller
         $type = $header['report_type'];
         $matrix = ProsecutorWeeklyMatrix::calculate($type, $request->input('rows', []));
 
-        DB::transaction(function () use ($request, $header, $matrix): void {
+        $report = DB::transaction(function () use ($request, $header, $matrix): ProsecutorWeeklyReport {
             $report = ProsecutorWeeklyReport::query()->create([
                 ...$header,
                 'user_id' => $request->user()->id,
             ]);
             $this->storeItems($report, $matrix);
+
+            return $report;
         });
+        $this->alertSubmitted($report);
 
         return redirect()
             ->route('admin.prosecutor-weekly.index', ['type' => $type])
@@ -81,6 +85,7 @@ class ProsecutorWeeklyReportController extends Controller
             $report->items()->delete();
             $this->storeItems($report, $matrix);
         });
+        $this->alertSubmitted($report->fresh());
 
         return redirect()
             ->route('admin.prosecutor-weekly.edit', $report)
@@ -274,5 +279,17 @@ class ProsecutorWeeklyReportController extends Controller
     private function type(string $type): ?string
     {
         return array_key_exists($type, ProsecutorWeeklyMatrix::types()) ? $type : null;
+    }
+
+    private function alertSubmitted(ProsecutorWeeklyReport $report): void
+    {
+        $report->loadMissing(['user', 'organization']);
+
+        SubmissionAlerts::notify(
+            $report,
+            ($report->user?->displayName() ?? 'ባለሙያ').' የዐቃቤ ህግ ሳምንታዊ አቅርቧል',
+            $report->report_type->label().' · ሳምንት '.$report->week_number.' · '.$report->budget_year_ec,
+            route('admin.prosecutor-weekly.edit', $report, false),
+        );
     }
 }

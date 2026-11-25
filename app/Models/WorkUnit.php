@@ -11,6 +11,11 @@ class WorkUnit extends Model
     protected $fillable = [
         'organization_id',
         'name',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     public function organization(): BelongsTo

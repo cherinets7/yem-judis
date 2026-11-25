@@ -158,9 +158,20 @@
         }
 
         .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: .55rem;
             color: var(--gold-soft);
             font-weight: 600;
             margin: 0;
+        }
+
+        .hero-kicker::before {
+            content: "";
+            width: 1.7rem;
+            height: 2px;
+            border-radius: 999px;
+            background: var(--gold);
         }
 
         .hero-lead {
@@ -181,9 +192,17 @@
             color: #f7f3ea;
         }
 
-        .hero .btn-outline-light:hover {
+        .hero .btn-outline-light:hover,
+        .hero .btn-green:hover {
             background: #fffcf7;
+            border-color: #fffcf7;
             color: var(--green-deep);
+        }
+
+        .hero .btn-green {
+            background: transparent;
+            border-color: rgba(247, 243, 234, .55);
+            color: #f7f3ea;
         }
 
         .hero-services {
@@ -212,8 +231,16 @@
         .hero-services span {
             grid-row: 1 / span 2;
             align-self: center;
-            color: var(--gold);
+            width: 2.15rem;
+            height: 2.15rem;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            color: var(--gold-soft);
+            background: rgba(200, 150, 62, .2);
+            border: 1px solid rgba(246, 234, 208, .4);
             font-weight: 700;
+            font-size: .82rem;
         }
 
         .hero-services strong { font-size: 1rem; }
@@ -269,6 +296,49 @@
 
         .portal-card:hover {
             box-shadow: 0 18px 36px rgba(20, 36, 28, .08);
+        }
+
+        .home-column {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background: rgba(255, 252, 247, .78);
+            border: 1px solid var(--line);
+            border-radius: 1.4rem;
+            padding: 1.15rem 1.05rem 1rem;
+            box-shadow: 0 16px 36px rgba(20, 36, 28, .045);
+        }
+
+        .home-stack {
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+
+        .home-column .portal-card,
+        .home-column .empty-state {
+            height: auto;
+            margin: 0;
+        }
+
+        .home-column h3 {
+            margin-bottom: .35rem;
+        }
+
+        .home-more {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            margin-top: auto;
+            padding-top: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .home-more::after {
+            content: "›";
+            font-size: 1.2rem;
+            line-height: 1;
         }
 
         .portal-card h2,

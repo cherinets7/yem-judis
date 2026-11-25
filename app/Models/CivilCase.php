@@ -4,14 +4,24 @@ namespace App\Models;
 
 use App\Enums\CourtLevel;
 use App\Enums\Gender;
+use App\Models\Concerns\HasAssignedExpert;
+use App\Models\Concerns\HasRegisterDocuments;
+use App\Models\Concerns\ProjectsToPublicCase;
+use App\Models\Concerns\SearchableRegister;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Civil case register. Code 004 high court, code 005 woreda court. */
 class CivilCase extends Model
 {
+    use HasAssignedExpert;
+    use HasRegisterDocuments;
+    use ProjectsToPublicCase;
+    use SearchableRegister;
+
     protected $fillable = [
         'organization_id',
+        'expert_id',
         'court_level',
         'plaintiff_name',
         'defendant_name',
@@ -25,6 +35,8 @@ class CivilCase extends Model
         'claim_money_amount',
         'claim_land_size',
         'assigned_prosecutor',
+        'appointment_date_ec',
+        'appointment_reason',
         'court_file_number',
         'decision_date_and_type',
         'case_age',

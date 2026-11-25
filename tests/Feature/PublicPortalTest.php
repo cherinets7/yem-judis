@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\UserRole;
 use App\Models\CommunityPost;
+use App\Models\CriminalCase;
 use App\Models\Law;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -100,18 +101,88 @@ class PublicPortalTest extends TestCase
             'type' => 'feedback',
             'guest_name' => 'ራሄል ተስፋ',
             'title' => 'የቀጠሮ መረጃው ጠቃሚ ነው',
-            'is_published' => 1,
+            'is_published' => 0,
         ]);
 
         $this->get('/community?tab=feedback')
             ->assertOk()
-            ->assertSee('የቀጠሮ መረጃው ጠቃሚ ነው')
-            ->assertSee('አስተያየትዎ በተሳካ ሁኔታ ተልኳል።');
+            ->assertDontSee('የቀጠሮ መረጃው ጠቃሚ ነው')
+            ->assertSee('አስተያየትዎ ተልኳል። ከታተመ በኋላ ይታያል።');
+
+        $feedback = CommunityPost::query()->where('title', 'የቀጠሮ መረጃው ጠቃሚ ነው')->firstOrFail();
+        $legal = User::query()->where('role', UserRole::LegalExpert)->firstOrFail();
+
+        $this->actingAs($legal)
+            ->post(route('admin.community-posts.publish', $feedback), ['is_published' => '1'])
+            ->assertRedirect();
+
+        $this->assertTrue((bool) $feedback->fresh()->is_published);
+
+        auth()->logout();
+
+        $this->get('/community?tab=feedback')
+            ->assertOk()
+            ->assertSee('የቀጠሮ መረጃው ጠቃሚ ነው');
 
         $this->post('/community/feedback', ['guest_name' => '', 'title' => '', 'content' => ''])
             ->assertSessionHasErrors(['guest_name', 'title', 'content']);
 
         $this->assertSame(2, CommunityPost::query()->where('type', 'feedback')->count());
+    }
+
+    public function test_a_published_register_case_is_searchable_and_follows_later_edits(): void
+    {
+        $legal = User::query()->where('role', UserRole::LegalExpert)->firstOrFail();
+
+        $this->actingAs($legal)->post(route('admin.criminal-cases.store'), [
+            'court_level' => 'woreda_court',
+            'prosecutor_file_number' => 'YZ/ወ/880/2019',
+            'court_file_number' => 'ሳ/ወ/880/2019',
+            'defendant_names' => 'ታየ ተከሳሽ',
+        ])->assertRedirect(route('admin.criminal-cases.index'));
+
+        $case = CriminalCase::query()->where('prosecutor_file_number', 'YZ/ወ/880/2019')->firstOrFail();
+        $this->assertFalse($case->is_published);
+
+        auth()->logout();
+        $this->get('/cases-tracking?q='.urlencode('YZ/ወ/880/2019'))
+            ->assertOk()
+            ->assertDontSee('ታየ ተከሳሽ');
+
+        $this->actingAs($legal)
+            ->post(route('admin.criminal-cases.publish', $case), ['is_published' => '1'])
+            ->assertRedirect();
+
+        $this->assertTrue($case->fresh()->is_published);
+
+        auth()->logout();
+        $this->get('/cases-tracking?q='.urlencode('ታየ ተከሳሽ'))
+            ->assertOk()
+            ->assertSee('YZ/ወ/880/2019')
+            ->assertSee('መደበኛ ወንጀል');
+
+        $this->actingAs($legal)->put(route('admin.criminal-cases.update', $case), [
+            'court_level' => 'woreda_court',
+            'prosecutor_file_number' => 'YZ/ወ/880/2019',
+            'defendant_names' => 'ታየ ተሻሽሏል',
+            'court_decision_type' => 'ጥፋተኛ',
+        ])->assertRedirect();
+
+        auth()->logout();
+        $this->get('/cases-tracking?q='.urlencode('YZ/ወ/880/2019'))
+            ->assertOk()
+            ->assertSee('ታየ ተሻሽሏል')
+            ->assertSee('ተወስኗል')
+            ->assertDontSee('ታየ ተከሳሽ');
+
+        $this->actingAs($legal)
+            ->delete(route('admin.criminal-cases.destroy', $case))
+            ->assertRedirect(route('admin.criminal-cases.index'));
+
+        auth()->logout();
+        $this->get('/cases-tracking?q='.urlencode('YZ/ወ/880/2019'))
+            ->assertOk()
+            ->assertDontSee('ታየ ተሻሽሏል');
     }
 
     public function test_missing_pages_use_the_amharic_message(): void

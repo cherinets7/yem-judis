@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PerformanceReportExport;
 use App\Exports\ProsecutorWeeklyReportExport;
 use App\Exports\RegisterExport;
 use App\Exports\StaffProfileExport;
+use App\Models\PerformanceReport;
 use App\Support\ExportRecords;
+use App\Support\PerformanceAccess;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -43,5 +46,17 @@ class ExcelExportController extends Controller
             new ProsecutorWeeklyReportExport(ExportRecords::prosecutorPayloads($request->string('type')->toString())),
             'prosecutor-weekly.xlsx',
         );
+    }
+
+    public function performanceReport(Request $request, PerformanceReport $report): BinaryFileResponse
+    {
+        $report = PerformanceAccess::visible($request, $report)->load(['user', 'organization', 'reviewer']);
+
+        return Excel::download(new PerformanceReportExport(collect([$report])), 'performance-'.$report->id.'.xlsx');
+    }
+
+    public function performanceCollection(Request $request): BinaryFileResponse
+    {
+        return Excel::download(new PerformanceReportExport(PerformanceAccess::query($request)->get()), 'performance.xlsx');
     }
 }

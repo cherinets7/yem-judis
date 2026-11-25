@@ -10,6 +10,7 @@ class StaffProfile extends Model
 {
     protected $fillable = [
         'organization_id',
+        'user_id',
         'work_unit_id',
         'staff_category',
         'full_name',
@@ -50,6 +51,11 @@ class StaffProfile extends Model
         'promotions' => 'array',
         'years_to_retirement' => 'integer',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function organization(): BelongsTo
     {

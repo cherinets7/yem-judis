@@ -175,6 +175,11 @@
                         <div class="fw-bold">@yield('title', 'ዳሽቦርድ')</div>
                         <div class="date-pill d-inline-block mt-1">{{ \App\Helpers\EthiopianDateHelper::now() }} · የበጀት ዓመት {{ \App\Helpers\EthiopianDateHelper::currentBudgetYear() }}</div>
                     </div>
+                    <a class="btn btn-outline-success btn-sm" id="staffNotifyLink" href="{{ route('notifications.index') }}">መልዕክት @if (auth()->user()->unreadNotifications()->count()) (<span id="staffNotifyCount">{{ auth()->user()->unreadNotifications()->count() }}</span>) @endif</a>
+                    <a class="btn btn-outline-success btn-sm" href="{{ route('password.edit') }}">የይለፍ ቃል</a>
+                    @if (\App\Support\TwoFactor::requiredFor(auth()->user()))
+                        <a class="btn btn-outline-success btn-sm" href="{{ route('two-factor.edit') }}">2FA</a>
+                    @endif
                     <div class="user-pill">{{ auth()->user()->displayName() }} · {{ auth()->user()->role->label() }}</div>
                     <form method="post" action="{{ route('logout') }}">
                         @csrf
@@ -209,6 +214,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const link = document.getElementById('staffNotifyLink');
+            if (!link) return;
+            const poll = () => {
+                fetch(@json(route('notifications.poll')), {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                }).then((response) => response.ok ? response.json() : null).then((data) => {
+                    if (!data) return;
+                    const count = Number(data.unread || 0);
+                    let label = 'መልዕክት';
+                    if (count > 0) {
+                        label += ' (<span id="staffNotifyCount">' + count + '</span>)';
+                    }
+                    link.innerHTML = label;
+                }).catch(() => {});
+            };
+            setInterval(poll, 30000);
+        })();
+    </script>
     @stack('scripts')
 </body>
 </html>

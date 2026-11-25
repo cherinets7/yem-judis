@@ -144,12 +144,12 @@ class PublicPortalController extends Controller
             'guest_name' => $validated['guest_name'],
             'organization_id' => $zone?->id,
             'user_id' => null,
-            'is_published' => true,
+            'is_published' => false,
         ]);
 
         return redirect()
             ->route('community.index', ['tab' => 'feedback'])
-            ->with('status', 'አስተያየትዎ በተሳካ ሁኔታ ተልኳል።');
+            ->with('status', 'አስተያየትዎ ተልኳል። ከታተመ በኋላ ይታያል።');
     }
 
     private function communityTab(string $tab): string

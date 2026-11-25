@@ -10,6 +10,10 @@
 
     <a class="staff-link @if(request()->routeIs('woredas')) is-active @endif" href="{{ route('woredas') }}" @if(request()->routeIs('woredas')) aria-current="page" @endif>ወረዳዎች</a>
 
+    @if (\App\Support\Roles::allows($user, 'legal'))
+        <a class="staff-link @if(request()->routeIs('admin.search')) is-active @endif" href="{{ route('admin.search') }}" @if(request()->routeIs('admin.search')) aria-current="page" @endif>መዝገብ ፍለጋ</a>
+    @endif
+
     @foreach (\App\Support\RegisterCatalog::sections() as $section)
         @continue(! \App\Support\Roles::allows($user, $section['roles']))
         @if (count($section['keys']) === 1)
@@ -28,6 +32,23 @@
             @endif
         @endif
     @endforeach
+
+    @if (\App\Support\Roles::allows($user, 'structure') || \App\Support\Roles::allows($user, 'experts') || \App\Support\Roles::allows($user, 'performance'))
+        <div class="staff-heading">መዋቅር</div>
+        @if (\App\Support\Roles::allows($user, 'structure'))
+            <a class="staff-link @if(request()->routeIs('admin.offices.*')) is-active @endif" href="{{ route('admin.offices.index') }}" @if(request()->routeIs('admin.offices.*')) aria-current="page" @endif>ዞን እና ወረዳ</a>
+        @endif
+        @if (\App\Support\Roles::allows($user, 'experts'))
+            <a class="staff-link @if(request()->routeIs('admin.experts.*')) is-active @endif" href="{{ route('admin.experts.index') }}" @if(request()->routeIs('admin.experts.*')) aria-current="page" @endif>ባለሙያዎች</a>
+        @endif
+        @if (\App\Support\Roles::allows($user, 'performance'))
+            <a class="staff-link @if(request()->routeIs('admin.performance.*')) is-active @endif" href="{{ route('admin.performance.index') }}" @if(request()->routeIs('admin.performance.*')) aria-current="page" @endif>አፈጻጸም</a>
+        @endif
+    @endif
+
+    @if (\App\Support\Roles::allows($user, 'reviewers'))
+        <a class="staff-link @if(request()->routeIs('admin.audit.*')) is-active @endif" href="{{ route('admin.audit.index') }}" @if(request()->routeIs('admin.audit.*')) aria-current="page" @endif>የለውጥ ታሪክ</a>
+    @endif
 
     <div class="staff-heading">ሥርዓት</div>
     <a class="staff-link @if(request()->routeIs('settings.*')) is-active @endif" href="{{ route('settings.edit') }}" @if(request()->routeIs('settings.*')) aria-current="page" @endif>ቅንብሮች</a>

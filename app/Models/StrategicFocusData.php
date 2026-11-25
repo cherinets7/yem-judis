@@ -37,13 +37,13 @@ class StrategicFocusData extends Model
         return $this->belongsTo(Organization::class);
     }
 
-    public function workUnit(): BelongsTo
-    {
-        return $this->belongsTo(WorkUnit::class);
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function workUnit(): BelongsTo
+    {
+        return $this->belongsTo(WorkUnit::class);
     }
 }
